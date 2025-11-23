@@ -9,6 +9,8 @@ import com.SxxM.med.dto.SymptomAnalysisResponse;
 import com.SxxM.med.service.OcrAnalysisService;
 import com.SxxM.med.service.SideEffectAnalysisService;
 import com.SxxM.med.service.SymptomAnalysisService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/analysis")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Analysis", description = "의약품 분석 API")
 public class AnalysisController {
     
     private final SymptomAnalysisService symptomAnalysisService;
@@ -27,6 +30,7 @@ public class AnalysisController {
     private final OcrAnalysisService ocrAnalysisService;
     
     @PostMapping("/symptom")
+    @Operation(summary = "증상 분석", description = "사용자의 증상을 분석하여 추천 약물 및 주의사항을 제공합니다.")
     public ResponseEntity<SymptomAnalysisResponse> analyzeSymptom(
             @Valid @RequestBody SymptomAnalysisRequest request
     ) {
@@ -40,6 +44,7 @@ public class AnalysisController {
     }
     
     @PostMapping("/side-effect")
+    @Operation(summary = "부작용 분석", description = "복용 중인 약물들의 부작용을 분석하여 공통 성분 및 위험 패턴을 추출합니다.")
     public ResponseEntity<SideEffectAnalysisResponse> analyzeSideEffect(
             @Valid @RequestBody SideEffectAnalysisRequest request
     ) {
@@ -53,6 +58,7 @@ public class AnalysisController {
     }
     
     @PostMapping("/ocr")
+    @Operation(summary = "OCR 분석", description = "의약품 성분표 이미지를 OCR로 분석하여 성분 리스트 및 안전성을 평가합니다.")
     public ResponseEntity<OcrAnalysisResponse> analyzeOcr(
             @Valid @RequestBody OcrAnalysisRequest request
     ) {

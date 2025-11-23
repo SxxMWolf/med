@@ -8,8 +8,6 @@ import com.SxxM.med.entity.UserAllergy;
 import com.SxxM.med.repository.OcrIngredientRepository;
 import com.SxxM.med.repository.UserAllergyRepository;
 import com.SxxM.med.repository.UserRepository;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,7 +28,7 @@ public class OcrAnalysisService {
     private final UserAllergyRepository userAllergyRepository;
     private final OcrIngredientRepository ocrIngredientRepository;
     private final VisionService visionService;
-    private final GptService gptService;
+    private final PythonApiService pythonApiService;
     private final ObjectMapper objectMapper;
     
     public OcrAnalysisResponse analyzeOcrImage(OcrAnalysisRequest request) {
@@ -50,17 +49,15 @@ public class OcrAnalysisService {
             throw new RuntimeException("이미지에서 텍스트를 추출할 수 없습니다");
         }
         
-        // 성분 리스트 파싱
-        List<String> extractedIngredients = parseIngredientsFromOcrText(ocrText);
+        // Python 서비스를 통해 OCR 텍스트 정규화
+        List<String> extractedIngredients = pythonApiService.normalizeOcrText(ocrText);
         
-        // GPT 프롬프트 생성
-        String prompt = buildOcrAnalysisPrompt(extractedIngredients, allergyIngredients, ocrText);
-        
-        // GPT 분석 요청
+        // Python 서비스를 통해 성분 분석
         try {
-            OcrAnalysisResponse response = gptService.analyzeWithGpt(prompt, OcrAnalysisResponse.class);
-            response.setOcrText(ocrText);
-            response.setExtractedIngredients(extractedIngredients);
+            Map<String, Object> analysisResult = pythonApiService.analyzeIngredients(extractedIngredients, allergyIngredients);
+            
+            // Python 서비스 응답을 OcrAnalysisResponse로 변환
+            OcrAnalysisResponse response = convertToOcrAnalysisResponse(analysisResult, ocrText, extractedIngredients);
             
             // 분석 결과를 DB에 저장
             OcrIngredient ocrIngredient = OcrIngredient.builder()
@@ -79,95 +76,69 @@ public class OcrAnalysisService {
         }
     }
     
-    private List<String> parseIngredientsFromOcrText(String ocrText) {
-        // GPT를 사용하여 성분 파싱
-        try {
-            String prompt = String.format("""
-                    다음은 의약품 성분표의 OCR 텍스트입니다. 
-                    이 텍스트에서 의약품 성분명만 추출하여 JSON 배열 형태로 반환해주세요.
-                    각 성분은 순수한 성분명만 포함해야 하며, 함량 정보는 제외해주세요.
-                    
-                    OCR 텍스트:
-                    %s
-                    
-                    JSON 형식: {"ingredients": ["성분1", "성분2", ...]}
-                    """, ocrText);
-            
-            String response = gptService.analyzeWithGptString(prompt);
-            
-            // JSON 파싱
-            JsonNode jsonNode = objectMapper.readTree(response);
-            if (jsonNode.has("ingredients")) {
-                return objectMapper.convertValue(jsonNode.get("ingredients"), new TypeReference<List<String>>() {});
-            }
-            
-            // JSON 형식이 아닌 경우 직접 파싱 시도
-            return parseIngredientsFromText(ocrText);
-        } catch (Exception e) {
-            log.warn("GPT를 통한 성분 파싱 실패, 기본 파싱 사용", e);
-            return parseIngredientsFromText(ocrText);
-        }
-    }
-    
-    private List<String> parseIngredientsFromText(String ocrText) {
-        // 기본 파싱 로직 (정규식 기반)
-        // 실제 구현은 OCR 텍스트 형식에 따라 달라질 수 있습니다
-        return List.of(ocrText.split("[,\\n]"))
-                .stream()
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .collect(Collectors.toList());
-    }
-    
-    private String buildOcrAnalysisPrompt(
-            List<String> extractedIngredients,
-            List<String> allergyIngredients,
-            String ocrText
+    private OcrAnalysisResponse convertToOcrAnalysisResponse(
+            Map<String, Object> analysisResult,
+            String ocrText,
+            List<String> extractedIngredients
     ) {
-        StringBuilder prompt = new StringBuilder();
-        prompt.append("의약품 성분표에서 추출한 성분 목록:\n");
-        extractedIngredients.forEach(ingredient -> 
-            prompt.append("- ").append(ingredient).append("\n")
-        );
-        prompt.append("\n");
+        OcrAnalysisResponse response = new OcrAnalysisResponse();
+        response.setOcrText(ocrText);
+        response.setExtractedIngredients(extractedIngredients);
         
-        if (!allergyIngredients.isEmpty()) {
-            prompt.append("사용자의 알러지 성분 목록:\n");
-            allergyIngredients.forEach(ingredient -> 
-                prompt.append("- ").append(ingredient).append("\n")
-            );
-            prompt.append("\n");
+        // Python 서비스 응답 파싱
+        OcrAnalysisResponse.IngredientAnalysis analysis = new OcrAnalysisResponse.IngredientAnalysis();
+        
+        if (analysisResult.containsKey("safety_level")) {
+            analysis.setSafetyLevel(analysisResult.get("safety_level").toString());
         }
         
-        prompt.append("원본 OCR 텍스트:\n").append(ocrText).append("\n\n");
+        if (analysisResult.containsKey("ingredient_risks")) {
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> risks = (List<Map<String, Object>>) analysisResult.get("ingredient_risks");
+            List<OcrAnalysisResponse.IngredientRisk> ingredientRisks = risks.stream()
+                    .map(this::convertToIngredientRisk)
+                    .collect(Collectors.toList());
+            analysis.setIngredientRisks(ingredientRisks);
+        }
         
-        prompt.append("""
-                다음 정보를 포함하여 JSON 형식으로 응답해주세요:
-                1. 각 성분의 위험도 분석 (ingredientRisks): 성분명, 함량 정보(가능한 경우), 알러지 위험도, 위험 수준, 이유
-                2. 예상 부작용 (expectedSideEffects): 이 약물을 복용할 때 예상되는 부작용 목록
-                3. 전체 안전성 평가 (overallAssessment): 이 약물의 전체적인 안전성에 대한 평가
-                4. 복용 안전성 수준 (safetyLevel): SAFE, CAUTION, DANGEROUS 중 하나
-                5. 권장 사항 (recommendations): 복용 전 주의사항 및 권장사항
-                
-                JSON 형식:
-                {
-                  "safetyLevel": "SAFE|CAUTION|DANGEROUS",
-                  "ingredientRisks": [
-                    {
-                      "ingredientName": "성분명",
-                      "content": "함량 정보",
-                      "allergyRisk": "위험도 설명",
-                      "riskLevel": "LOW|MEDIUM|HIGH",
-                      "reason": "이유"
-                    }
-                  ],
-                  "expectedSideEffects": ["부작용1", "부작용2"],
-                  "overallAssessment": "전체 평가",
-                  "recommendations": ["권장사항1", "권장사항2"]
-                }
-                """);
+        if (analysisResult.containsKey("expected_side_effects")) {
+            @SuppressWarnings("unchecked")
+            List<String> sideEffects = (List<String>) analysisResult.get("expected_side_effects");
+            analysis.setExpectedSideEffects(sideEffects);
+        }
         
-        return prompt.toString();
+        if (analysisResult.containsKey("overall_assessment")) {
+            analysis.setOverallAssessment(analysisResult.get("overall_assessment").toString());
+        }
+        
+        if (analysisResult.containsKey("recommendations")) {
+            @SuppressWarnings("unchecked")
+            List<String> recommendations = (List<String>) analysisResult.get("recommendations");
+            analysis.setRecommendations(recommendations);
+        }
+        
+        response.setAnalysis(analysis);
+        return response;
+    }
+    
+    private OcrAnalysisResponse.IngredientRisk convertToIngredientRisk(Map<String, Object> riskMap) {
+        OcrAnalysisResponse.IngredientRisk risk = new OcrAnalysisResponse.IngredientRisk();
+        if (riskMap.containsKey("ingredient_name")) {
+            risk.setIngredientName(riskMap.get("ingredient_name").toString());
+        }
+        if (riskMap.containsKey("content")) {
+            risk.setContent(riskMap.get("content").toString());
+        }
+        if (riskMap.containsKey("allergy_risk")) {
+            risk.setAllergyRisk(riskMap.get("allergy_risk").toString());
+        }
+        if (riskMap.containsKey("risk_level")) {
+            risk.setRiskLevel(riskMap.get("risk_level").toString());
+        }
+        if (riskMap.containsKey("reason")) {
+            risk.setReason(riskMap.get("reason").toString());
+        }
+        return risk;
     }
 }
 

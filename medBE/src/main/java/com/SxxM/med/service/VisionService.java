@@ -83,12 +83,5 @@ public class VisionService {
             throw new RuntimeException("이미지 OCR 처리 중 오류가 발생했습니다: " + e.getMessage(), e);
         }
     }
-    
-    public List<String> parseIngredientsFromText(String ocrText) {
-        // OCR 텍스트에서 성분 리스트를 파싱하는 로직
-        // 실제 구현은 OCR 텍스트 형식에 따라 달라질 수 있습니다
-        // 이 메서드는 OcrAnalysisService에서 직접 처리하므로 여기서는 사용하지 않음
-        return List.of();
-    }
 }
 

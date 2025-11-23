@@ -4,6 +4,9 @@ import com.SxxM.med.dto.*;
 import com.SxxM.med.service.AuthService;
 import com.SxxM.med.service.PasswordService;
 import com.SxxM.med.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Authentication", description = "인증 및 사용자 관리 API")
 public class AuthController {
     
     private final AuthService authService;
@@ -23,6 +27,7 @@ public class AuthController {
     private final PasswordService passwordService;
     
     @PostMapping("/login")
+    @Operation(summary = "로그인", description = "사용자 로그인 후 JWT 토큰을 발급받습니다.")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         try {
             String token = authService.login(request.getUsername(), request.getPassword());
@@ -73,6 +78,8 @@ public class AuthController {
     }
     
     @PostMapping("/change-nickname")
+    @Operation(summary = "닉네임 변경", description = "인증된 사용자의 닉네임을 변경합니다.")
+    @SecurityRequirement(name = "BearerAuth")
     public ResponseEntity<MessageResponse> changeNickname(
             Authentication authentication,
             @Valid @RequestBody ChangeNicknameRequest request
@@ -94,6 +101,8 @@ public class AuthController {
     }
     
     @PostMapping("/change-password")
+    @Operation(summary = "비밀번호 변경", description = "인증된 사용자의 비밀번호를 변경합니다.")
+    @SecurityRequirement(name = "BearerAuth")
     public ResponseEntity<MessageResponse> changePassword(
             Authentication authentication,
             @Valid @RequestBody ChangePasswordRequest request

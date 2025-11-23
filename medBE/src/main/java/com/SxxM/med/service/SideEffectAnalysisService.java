@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,7 +29,7 @@ public class SideEffectAnalysisService {
     private final UserAllergyRepository userAllergyRepository;
     private final SideEffectReportRepository sideEffectReportRepository;
     private final MedicationDbService medicationDbService;
-    private final GptService gptService;
+    private final PythonApiService pythonApiService;
     private final ObjectMapper objectMapper;
     
     public SideEffectAnalysisResponse analyzeSideEffect(SideEffectAnalysisRequest request) {
@@ -45,28 +46,22 @@ public class SideEffectAnalysisService {
         // 각 약물의 성분 정보 조회
         List<MedicationInfo> medicationInfos = medicationDbService.getMedicationInfoList(request.getMedicationNames());
         
-        // 공통 성분 추출
-        List<String> commonIngredients = medicationDbService.extractCommonIngredients(medicationInfos);
-        
-        // 모든 약물의 성분 목록 수집
-        List<String> allIngredients = medicationInfos.stream()
-                .flatMap(med -> med.getIngredients().stream())
-                .distinct()
+        // 약물별 성분 리스트 준비
+        List<List<String>> medicationIngredients = medicationInfos.stream()
+                .map(MedicationInfo::getIngredients)
                 .collect(Collectors.toList());
         
-        // GPT 프롬프트 생성
-        String prompt = buildSideEffectAnalysisPrompt(
-                request.getMedicationNames(),
-                medicationInfos,
-                commonIngredients,
-                allIngredients,
-                allergyIngredients,
-                request.getDescription()
-        );
-        
-        // GPT 분석 요청
+        // Python 서비스를 통해 부작용 분석
         try {
-            SideEffectAnalysisResponse response = gptService.analyzeWithGpt(prompt, SideEffectAnalysisResponse.class);
+            Map<String, Object> analysisResult = pythonApiService.analyzeSideEffects(
+                    request.getMedicationNames(),
+                    medicationIngredients,
+                    allergyIngredients,
+                    request.getDescription()
+            );
+            
+            // Python 서비스 응답을 SideEffectAnalysisResponse로 변환
+            SideEffectAnalysisResponse response = convertToSideEffectAnalysisResponse(analysisResult);
             
             // 분석 결과를 DB에 저장
             SideEffectReport report = SideEffectReport.builder()
@@ -84,72 +79,66 @@ public class SideEffectAnalysisService {
         }
     }
     
-    private String buildSideEffectAnalysisPrompt(
-            List<String> medicationNames,
-            List<MedicationInfo> medicationInfos,
-            List<String> commonIngredients,
-            List<String> allIngredients,
-            List<String> allergyIngredients,
-            String description
-    ) {
-        StringBuilder prompt = new StringBuilder();
-        prompt.append("사용자가 다음 약물들을 복용한 후 부작용을 경험했습니다:\n\n");
+    private SideEffectAnalysisResponse convertToSideEffectAnalysisResponse(Map<String, Object> analysisResult) {
+        SideEffectAnalysisResponse response = new SideEffectAnalysisResponse();
         
-        medicationNames.forEach(name -> prompt.append("- ").append(name).append("\n"));
-        prompt.append("\n");
-        
-        if (description != null && !description.isEmpty()) {
-            prompt.append("부작용 설명: ").append(description).append("\n\n");
+        if (analysisResult.containsKey("common_ingredients")) {
+            @SuppressWarnings("unchecked")
+            List<String> commonIngredients = (List<String>) analysisResult.get("common_ingredients");
+            response.setCommonIngredients(commonIngredients);
         }
         
-        prompt.append("각 약물의 성분 정보:\n");
-        medicationInfos.forEach(med -> {
-            prompt.append("- ").append(med.getName()).append(": ");
-            prompt.append(String.join(", ", med.getIngredients())).append("\n");
-        });
-        prompt.append("\n");
-        
-        if (!commonIngredients.isEmpty()) {
-            prompt.append("공통 성분: ").append(String.join(", ", commonIngredients)).append("\n\n");
+        if (analysisResult.containsKey("user_sensitive_ingredients")) {
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> sensitiveList = (List<Map<String, Object>>) analysisResult.get("user_sensitive_ingredients");
+            List<SideEffectAnalysisResponse.SensitiveIngredient> sensitiveIngredients = sensitiveList.stream()
+                    .map(this::convertToSensitiveIngredient)
+                    .collect(Collectors.toList());
+            response.setUserSensitiveIngredients(sensitiveIngredients);
         }
         
-        if (!allergyIngredients.isEmpty()) {
-            prompt.append("사용자의 알러지 성분 목록:\n");
-            allergyIngredients.forEach(ingredient -> 
-                prompt.append("- ").append(ingredient).append("\n")
-            );
-            prompt.append("\n");
+        if (analysisResult.containsKey("common_side_effect_ingredients")) {
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> sideEffectList = (List<Map<String, Object>>) analysisResult.get("common_side_effect_ingredients");
+            List<SideEffectAnalysisResponse.CommonSideEffectIngredient> sideEffectIngredients = sideEffectList.stream()
+                    .map(this::convertToCommonSideEffectIngredient)
+                    .collect(Collectors.toList());
+            response.setCommonSideEffectIngredients(sideEffectIngredients);
         }
         
-        prompt.append("""
-                다음 정보를 포함하여 JSON 형식으로 응답해주세요:
-                1. 공통 성분 (commonIngredients): 모든 약물에 공통으로 포함된 성분 목록
-                2. 사용자 민감 가능 성분 (userSensitiveIngredients): 사용자의 알러지 성분과 일치하거나 유사한 성분, 이유, 심각도
-                3. 많은 사람에게 부작용이 일어나는 성분 (commonSideEffectIngredients): 일반적으로 부작용을 일으키는 것으로 알려진 성분, 부작용 설명, 발생 빈도
-                4. 요약 (summary): 전체 분석 요약
-                
-                JSON 형식:
-                {
-                  "commonIngredients": ["성분1", "성분2"],
-                  "userSensitiveIngredients": [
-                    {
-                      "ingredientName": "성분명",
-                      "reason": "민감한 이유",
-                      "severity": "MILD|MODERATE|SEVERE"
-                    }
-                  ],
-                  "commonSideEffectIngredients": [
-                    {
-                      "ingredientName": "성분명",
-                      "sideEffectDescription": "부작용 설명",
-                      "frequency": "빈도"
-                    }
-                  ],
-                  "summary": "전체 분석 요약"
-                }
-                """);
+        if (analysisResult.containsKey("summary")) {
+            response.setSummary(analysisResult.get("summary").toString());
+        }
         
-        return prompt.toString();
+        return response;
+    }
+    
+    private SideEffectAnalysisResponse.SensitiveIngredient convertToSensitiveIngredient(Map<String, Object> map) {
+        SideEffectAnalysisResponse.SensitiveIngredient ingredient = new SideEffectAnalysisResponse.SensitiveIngredient();
+        if (map.containsKey("ingredient_name")) {
+            ingredient.setIngredientName(map.get("ingredient_name").toString());
+        }
+        if (map.containsKey("reason")) {
+            ingredient.setReason(map.get("reason").toString());
+        }
+        if (map.containsKey("severity")) {
+            ingredient.setSeverity(map.get("severity").toString());
+        }
+        return ingredient;
+    }
+    
+    private SideEffectAnalysisResponse.CommonSideEffectIngredient convertToCommonSideEffectIngredient(Map<String, Object> map) {
+        SideEffectAnalysisResponse.CommonSideEffectIngredient ingredient = new SideEffectAnalysisResponse.CommonSideEffectIngredient();
+        if (map.containsKey("ingredient_name")) {
+            ingredient.setIngredientName(map.get("ingredient_name").toString());
+        }
+        if (map.containsKey("side_effect_description")) {
+            ingredient.setSideEffectDescription(map.get("side_effect_description").toString());
+        }
+        if (map.containsKey("frequency")) {
+            ingredient.setFrequency(map.get("frequency").toString());
+        }
+        return ingredient;
     }
 }
 

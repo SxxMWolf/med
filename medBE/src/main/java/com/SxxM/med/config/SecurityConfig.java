@@ -31,7 +31,16 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/find-username", "/api/auth/find-password")
+                        .requestMatchers(
+                                "/api/auth/login", 
+                                "/api/auth/find-username", 
+                                "/api/auth/find-password",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        )
                         .permitAll()
                         .requestMatchers("/api/posts", "/api/posts/**")
                         .permitAll() // 게시글 조회는 공개

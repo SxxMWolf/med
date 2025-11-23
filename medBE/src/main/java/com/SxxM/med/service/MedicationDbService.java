@@ -102,25 +102,5 @@ public class MedicationDbService {
                 .manufacturer(jsonNode.has("manufacturer") ? jsonNode.get("manufacturer").asText() : "")
                 .build();
     }
-    
-    public List<String> extractCommonIngredients(List<MedicationInfo> medications) {
-        if (medications == null || medications.isEmpty()) {
-            return new ArrayList<>();
-        }
-        
-        if (medications.size() == 1) {
-            return new ArrayList<>(medications.get(0).getIngredients());
-        }
-        
-        // 첫 번째 약물의 성분을 기준으로 공통 성분 찾기
-        List<String> commonIngredients = new ArrayList<>(medications.get(0).getIngredients());
-        
-        for (int i = 1; i < medications.size(); i++) {
-            List<String> currentIngredients = medications.get(i).getIngredients();
-            commonIngredients.retainAll(currentIngredients);
-        }
-        
-        return commonIngredients;
-    }
 }
 
