@@ -36,7 +36,7 @@ export default function SymptomAnalysisPage() {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">증상 분석</h1>
         <p className="text-gray-600 mb-6">
-          현재 겪고 있는 증상을 입력하시면, 알러지 정보를 고려하여 안전한 약물을 추천해드립니다.
+          현재 겪고 있는 증상을 입력하시면, 알러지 정보를 고려하여 안전한 의약품을 추천해드립니다.
         </p>
 
         <form onSubmit={handleSubmit} className="mb-8">
