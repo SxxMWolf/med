@@ -28,16 +28,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         
+        // OPTIONS 요청 (CORS preflight)은 필터 건너뛰기
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        
         String token = getTokenFromRequest(request);
         
-        if (token != null && jwtConfig.validateToken(token, jwtConfig.getUsernameFromToken(token))) {
-            String username = jwtConfig.getUsernameFromToken(token);
-            
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    username, null, new ArrayList<>());
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        if (token != null) {
+            try {
+                log.info("JWT 토큰 수신: URI={}, 토큰 길이={}", request.getRequestURI(), token.length());
+                String username = jwtConfig.getUsernameFromToken(token);
+                log.info("JWT 토큰에서 username 추출: {}", username);
+                
+                if (jwtConfig.validateToken(token, username)) {
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            username, null, new ArrayList<>());
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    log.info("JWT 인증 성공: username={}, URI={}", username, request.getRequestURI());
+                } else {
+                    log.warn("JWT 토큰 검증 실패: username={}, URI={}", username, request.getRequestURI());
+                }
+            } catch (Exception e) {
+                log.error("JWT 토큰 처리 중 오류 발생: URI={}, 에러={}", request.getRequestURI(), e.getMessage(), e);
+                // 토큰 파싱 실패 시 인증하지 않고 계속 진행 (401/403은 Security가 처리)
+            }
+        } else {
+            log.warn("Authorization 헤더에 토큰이 없습니다: URI={}, 헤더={}", 
+                    request.getRequestURI(), request.getHeader("Authorization"));
         }
         
         filterChain.doFilter(request, response);

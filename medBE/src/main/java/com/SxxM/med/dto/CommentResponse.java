@@ -20,6 +20,8 @@ public class CommentResponse {
     private Long authorId;
     private String authorNickname;
     private String content;
+    private Long likeCount;
+    private Boolean isLiked;
     private LocalDateTime createdAt;
 }
 

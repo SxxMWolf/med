@@ -36,17 +36,6 @@ public class User {
     @Column(nullable = false, name = "nickname")
     private String nickname;
     
-    // 기존 name 필드를 nickname으로 사용하기 위한 호환성 메서드
-    @Deprecated
-    public String getName() {
-        return nickname;
-    }
-    
-    @Deprecated
-    public void setName(String name) {
-        this.nickname = name;
-    }
-    
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<UserAllergy> allergies = new ArrayList<>();

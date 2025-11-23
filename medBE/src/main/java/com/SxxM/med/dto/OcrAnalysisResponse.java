@@ -15,7 +15,8 @@ import java.util.List;
 @Builder
 public class OcrAnalysisResponse {
     
-    private String ocrText;
+    private String ocrText;  // 원본 OCR 텍스트
+    private String cleanedText;  // GPT로 정리된 텍스트
     private List<String> extractedIngredients;
     private IngredientAnalysis analysis;
     

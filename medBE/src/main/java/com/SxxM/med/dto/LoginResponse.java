@@ -15,5 +15,18 @@ public class LoginResponse {
     private String accessToken;
     @Builder.Default
     private String tokenType = "Bearer";
+    private UserInfo user;
+    
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class UserInfo {
+        private Long id;
+        private String username;
+        private String email;
+        private String nickname;
+    }
 }
 

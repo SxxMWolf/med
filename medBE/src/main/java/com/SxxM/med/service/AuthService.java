@@ -34,5 +34,28 @@ public class AuthService {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
     }
+    
+    public User register(String username, String password, String email, String nickname) {
+        // 중복 확인
+        if (userRepository.findByUsername(username).isPresent()) {
+            throw new RuntimeException("이미 사용 중인 아이디입니다");
+        }
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new RuntimeException("이미 사용 중인 이메일입니다");
+        }
+        
+        // 비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(password);
+        
+        // 사용자 생성
+        User user = User.builder()
+                .username(username)
+                .password(encodedPassword)
+                .email(email)
+                .nickname(nickname)
+                .build();
+        
+        return userRepository.save(user);
+    }
 }
 

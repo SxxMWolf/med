@@ -1,6 +1,7 @@
 package com.SxxM.med.controller;
 
 import com.SxxM.med.dto.*;
+import com.SxxM.med.entity.User;
 import com.SxxM.med.service.AuthService;
 import com.SxxM.med.service.PasswordService;
 import com.SxxM.med.service.UserService;
@@ -26,18 +27,98 @@ public class AuthController {
     private final UserService userService;
     private final PasswordService passwordService;
     
+    @PostMapping("/register")
+    @Operation(summary = "회원가입", description = "새로운 사용자를 등록합니다.")
+    public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest request) {
+        try {
+            User user = authService.register(
+                    request.getUsername(),
+                    request.getPassword(),
+                    request.getEmail(),
+                    request.getNickname()
+            );
+            
+            UserResponse response = UserResponse.builder()
+                    .id(user.getId())
+                    .username(user.getUsername())
+                    .email(user.getEmail())
+                    .nickname(user.getNickname())
+                    .createdAt(user.getCreatedAt())
+                    .updatedAt(user.getUpdatedAt())
+                    .build();
+            
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (RuntimeException e) {
+            log.error("회원가입 실패", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(null);
+        } catch (Exception e) {
+            log.error("회원가입 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
     @PostMapping("/login")
-    @Operation(summary = "로그인", description = "사용자 로그인 후 JWT 토큰을 발급받습니다.")
+    @Operation(summary = "로그인", description = "사용자 로그인 후 JWT 토큰 및 사용자 정보를 받습니다.")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         try {
+            log.info("로그인 시도: username={}", request.getUsername());
             String token = authService.login(request.getUsername(), request.getPassword());
+            log.info("로그인 성공: username={}, token 생성됨", request.getUsername());
+            
+            User user = authService.getUserByUsername(request.getUsername());
+            
+            LoginResponse.UserInfo userInfo = LoginResponse.UserInfo.builder()
+                    .id(user.getId())
+                    .username(user.getUsername())
+                    .email(user.getEmail())
+                    .nickname(user.getNickname())
+                    .build();
+            
             LoginResponse response = LoginResponse.builder()
                     .accessToken(token)
+                    .user(userInfo)
                     .build();
+            
+            log.info("로그인 응답 생성 완료: username={}", request.getUsername());
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            log.error("로그인 실패: username={}, error={}", request.getUsername(), e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            log.error("로그인 중 예상치 못한 오류 발생: username={}", request.getUsername(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    @GetMapping("/me")
+    @Operation(summary = "현재 사용자 정보 조회", description = "인증된 사용자의 정보를 조회합니다.")
+    @SecurityRequirement(name = "BearerAuth")
+    public ResponseEntity<UserResponse> getCurrentUser(Authentication authentication) {
+        try {
+            if (authentication == null) {
+                log.error("인증 정보가 없습니다. JWT 필터에서 인증이 설정되지 않았습니다.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            
+            String username = authentication.getName();
+            log.info("사용자 정보 조회 요청: username={}", username);
+            
+            User user = authService.getUserByUsername(username);
+            
+            UserResponse response = UserResponse.builder()
+                    .id(user.getId())
+                    .username(user.getUsername())
+                    .email(user.getEmail())
+                    .nickname(user.getNickname())
+                    .createdAt(user.getCreatedAt())
+                    .updatedAt(user.getUpdatedAt())
+                    .build();
+            
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("로그인 실패", e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            log.error("사용자 정보 조회 실패", e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
     
