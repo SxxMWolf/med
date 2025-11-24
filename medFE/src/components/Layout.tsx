@@ -1,20 +1,21 @@
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 
 export default function Layout() {
   const { user, clearAuth } = useAuthStore();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     clearAuth();
-    window.location.href = '/login';
+    navigate('/');
   };
 
   const navItems = [
     { path: '/symptom', label: '증상 분석', public: true },
     { path: '/side-effect', label: '부작용 분석', public: true },
     { path: '/ocr', label: '성분표 분석', public: true },
-    { path: '/posts', label: '커뮤니티', public: false },
+    { path: '/posts', label: '커뮤니티', public: true }, // 읽기는 로그인 불필요
     { path: '/allergies', label: '알러지 관리', public: false },
   ];
 
@@ -30,9 +31,9 @@ export default function Layout() {
                 </Link>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                {navItems
-                  .filter((item) => item.public || user)
-                  .map((item) => (
+                {navItems.map((item) => {
+                  const isPublic = item.public || user;
+                  return (
                     <Link
                       key={item.path}
                       to={item.path}
@@ -40,11 +41,16 @@ export default function Layout() {
                         location.pathname === item.path
                           ? 'border-blue-500 text-gray-900'
                           : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                      }`}
+                      } ${!isPublic ? 'opacity-60' : ''}`}
+                      title={!isPublic ? '로그인 후 사용 가능' : ''}
                     >
                       {item.label}
+                      {!isPublic && (
+                        <span className="ml-1 text-xs text-gray-400">(로그인 필요)</span>
+                      )}
                     </Link>
-                  ))}
+                  );
+                })}
               </div>
             </div>
             <div className="flex items-center">

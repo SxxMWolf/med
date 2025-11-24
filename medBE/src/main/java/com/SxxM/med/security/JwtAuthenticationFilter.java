@@ -56,9 +56,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 log.error("JWT 토큰 처리 중 오류 발생: URI={}, 에러={}", request.getRequestURI(), e.getMessage(), e);
                 // 토큰 파싱 실패 시 인증하지 않고 계속 진행 (401/403은 Security가 처리)
             }
-        } else {
-            log.warn("Authorization 헤더에 토큰이 없습니다: URI={}, 헤더={}", 
-                    request.getRequestURI(), request.getHeader("Authorization"));
         }
         
         filterChain.doFilter(request, response);
@@ -67,9 +64,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/api/health") ||
-               path.startsWith("/actuator/health") ||
-               path.startsWith("/actuator/");
+        return path.startsWith("/api/health") || path.startsWith("/actuator/");
     }
     
     private String getTokenFromRequest(HttpServletRequest request) {

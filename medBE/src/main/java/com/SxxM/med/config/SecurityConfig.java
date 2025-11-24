@@ -33,11 +33,9 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/health", "/api/health/**")
-                        .permitAll()
-                        .requestMatchers("/actuator/health", "/actuator/**")
-                        .permitAll()
                         .requestMatchers(
+                                "/api/health/**",
+                                "/actuator/**",
                                 "/api/auth/register",
                                 "/api/auth/login", 
                                 "/api/auth/find-username", 
@@ -54,11 +52,11 @@ public class SecurityConfig {
                                 "/webjars/**"
                         )
                         .permitAll()
-                        .requestMatchers("/api/posts", "/api/posts/**")
+                        .requestMatchers("/api/posts/**")
                         .authenticated() // 게시글 관리 API는 인증 필요
-                        .requestMatchers("/api/comments", "/api/comments/**")
+                        .requestMatchers("/api/comments/**")
                         .authenticated() // 댓글 관리 API는 인증 필요
-                        .requestMatchers("/api/users", "/api/users/**")
+                        .requestMatchers("/api/users/**")
                         .authenticated() // 사용자 및 알러지 관리 API는 인증 필요
                         .anyRequest()
                         .authenticated()

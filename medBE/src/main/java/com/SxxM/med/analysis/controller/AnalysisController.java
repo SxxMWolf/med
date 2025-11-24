@@ -1,6 +1,5 @@
 package com.sxxm.med.analysis.controller;
 
-import com.sxxm.med.auth.entity.User;
 import com.sxxm.med.auth.repository.UserRepository;
 import com.sxxm.med.ocr.dto.OcrAnalysisRequest;
 import com.sxxm.med.ocr.dto.OcrAnalysisResponse;
@@ -20,8 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/analysis")
@@ -72,16 +69,14 @@ public class AnalysisController {
         try {
             // JWT에서 사용자 정보 추출 (인증이 있으면 userId 설정, 없으면 null 허용)
             if (authentication != null && authentication.getName() != null) {
-                String username = authentication.getName();
-                Optional<User> userOpt = userRepository.findByUsername(username);
-                if (userOpt.isPresent()) {
-                    User user = userOpt.get();
-                    // 요청의 userId를 JWT에서 추출한 userId로 덮어쓰기
-                    request.setUserId(user.getId());
-                    log.info("OCR 분석 시작: userId={}, username={}", user.getId(), username);
-                } else {
-                    log.warn("사용자를 찾을 수 없습니다: {}, userId 없이 진행", username);
-                }
+                userRepository.findByUsername(authentication.getName())
+                        .ifPresentOrElse(
+                                user -> {
+                                    request.setUserId(user.getId());
+                                    log.info("OCR 분석 시작: userId={}, username={}", user.getId(), user.getUsername());
+                                },
+                                () -> log.warn("사용자를 찾을 수 없습니다: {}, userId 없이 진행", authentication.getName())
+                        );
             } else {
                 log.info("인증 정보가 없습니다. 비로그인 사용자로 OCR 분석 진행");
             }
@@ -91,13 +86,10 @@ public class AnalysisController {
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             log.error("OCR 분석 요청 처리 중 오류 발생: {}", e.getMessage(), e);
-            // 에러 메시지를 포함한 응답 반환 (프론트엔드 디버깅 용)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(null); // 또는 에러 DTO 반환 가능
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
             log.error("OCR 분석 요청 처리 중 예상치 못한 오류 발생: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null); // 또는 에러 DTO 반환 가능
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

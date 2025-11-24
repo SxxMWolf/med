@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { postsApi } from '../api/posts';
 import { commentsApi } from '../api/comments';
 import { useAuthStore } from '../store/authStore';
+import { formatDate } from '../utils/date';
 import type { PostResponse, CommentResponse } from '../types/api';
 
 export default function PostDetailPage() {
@@ -152,17 +153,6 @@ export default function PostDetailPage() {
       setError(err.response?.data?.message || '게시글 삭제에 실패했습니다.');
       console.error('게시글 삭제 실패:', err);
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
   };
 
   if (loading) {

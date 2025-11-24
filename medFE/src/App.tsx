@@ -32,6 +32,9 @@ function App() {
           <Route path="side-effect" element={<SideEffectAnalysisPage />} />
           <Route path="ocr" element={<OcrAnalysisPage />} />
           <Route path="test" element={<TestPage />} />
+          {/* 커뮤니티 읽기 - 로그인 없이 접근 가능 */}
+          <Route path="posts" element={<PostsListPage />} />
+          <Route path="posts/:postId" element={<PostDetailPage />} />
         </Route>
         {/* Private Routes - 로그인 필수 */}
         <Route
@@ -42,9 +45,7 @@ function App() {
             </PrivateRoute>
           }
         >
-          <Route path="posts" element={<PostsListPage />} />
           <Route path="posts/create" element={<PostCreatePage />} />
-          <Route path="posts/:postId" element={<PostDetailPage />} />
           <Route path="allergies" element={<AllergiesPage />} />
           <Route path="mypage" element={<MyPage />} />
         </Route>
