@@ -4,6 +4,12 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 // 프로덕션에서는 환경 변수로 설정된 URL 사용
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
+// 디버깅: baseURL 확인
+if (typeof window !== 'undefined') {
+  console.log('API Base URL:', API_BASE_URL || '(빈 값 - 상대 경로 사용)');
+  console.log('Environment Variable:', import.meta.env.VITE_API_BASE_URL);
+}
+
 class ApiClient {
   private client: AxiosInstance;
 
@@ -19,23 +25,23 @@ class ApiClient {
     this.client.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
         const token = localStorage.getItem('accessToken');
+        const fullURL = config.baseURL 
+          ? `${config.baseURL}${config.url}` 
+          : config.url || '';
+        
+        console.log('API 요청:', {
+          url: config.url,
+          method: config.method,
+          baseURL: config.baseURL || '(상대 경로)',
+          fullURL: fullURL,
+          hasToken: !!token,
+        });
+        
         if (token && config.headers) {
           // Bearer 토큰 형식으로 설정
           config.headers.Authorization = `Bearer ${token}`;
-          console.log('요청 전송:', {
-            url: config.url,
-            method: config.method,
-            baseURL: config.baseURL,
-            fullURL: `${config.baseURL}${config.url}`,
-            hasToken: true,
-            tokenPrefix: token.substring(0, 20) + '...',
-            authHeader: config.headers.Authorization?.substring(0, 30) + '...',
-          });
         } else {
-          console.warn('No access token found in localStorage', {
-            url: config.url,
-            method: config.method,
-          });
+          console.warn('No access token found in localStorage');
         }
         return config;
       },
