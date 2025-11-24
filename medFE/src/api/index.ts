@@ -5,10 +5,15 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 // 디버깅: baseURL 확인
 if (typeof window !== 'undefined') {
-  console.log('API Base URL:', API_BASE_URL || '(빈 값 - 상대 경로 사용)');
-  console.log('Environment Variable:', import.meta.env.VITE_API_BASE_URL);
-  if (!API_BASE_URL) {
-    console.warn('⚠️ VITE_API_BASE_URL이 설정되지 않았습니다. 환경 변수를 확인하세요.');
+  console.log('🔍 API 설정 확인:');
+  console.log('  - VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL || '(설정되지 않음)');
+  console.log('  - 사용할 baseURL:', API_BASE_URL || '(빈 값 - 상대 경로 사용)');
+  
+  if (!API_BASE_URL && import.meta.env.PROD) {
+    console.error('❌ 프로덕션 환경에서 VITE_API_BASE_URL이 설정되지 않았습니다!');
+    console.error('   Vercel 대시보드에서 환경 변수를 설정하세요:');
+    console.error('   Key: VITE_API_BASE_URL');
+    console.error('   Value: http://16.184.46.179:8080');
   }
 }
 
