@@ -1,4 +1,4 @@
-package com.SxxM.med.auth.dto;
+package com.sxxm.med.auth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,6 +1,6 @@
-package com.SxxM.med.ocr.repository;
+package com.sxxm.med.ocr.repository;
 
-import com.SxxM.med.ocr.entity.OcrIngredient;
+import com.sxxm.med.ocr.entity.OcrIngredient;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

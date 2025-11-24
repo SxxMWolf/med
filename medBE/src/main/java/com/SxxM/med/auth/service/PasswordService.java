@@ -1,7 +1,7 @@
-package com.SxxM.med.auth.service;
+package com.sxxm.med.auth.service;
 
-import com.SxxM.med.auth.entity.User;
-import com.SxxM.med.auth.repository.UserRepository;
+import com.sxxm.med.auth.entity.User;
+import com.sxxm.med.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;

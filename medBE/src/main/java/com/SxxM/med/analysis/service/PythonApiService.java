@@ -1,4 +1,4 @@
-package com.SxxM.med.analysis.service;
+package com.sxxm.med.analysis.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

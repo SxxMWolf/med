@@ -1,4 +1,4 @@
-package com.SxxM.med.config;
+package com.sxxm.med.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

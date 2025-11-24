@@ -1,4 +1,4 @@
-package com.SxxM.med.config;
+package com.sxxm.med.config;
 
 import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.databind.ObjectMapper;

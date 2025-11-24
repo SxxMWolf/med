@@ -1,4 +1,4 @@
-package com.SxxM.med.ocr.service;
+package com.sxxm.med.ocr.service;
 
 import com.google.cloud.vision.v1.*;
 import com.google.protobuf.ByteString;

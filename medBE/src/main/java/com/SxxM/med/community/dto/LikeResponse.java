@@ -1,4 +1,4 @@
-package com.SxxM.med.community.dto;
+package com.sxxm.med.community.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,6 +1,6 @@
-package com.SxxM.med.community.repository;
+package com.sxxm.med.community.repository;
 
-import com.SxxM.med.community.entity.PostLike;
+import com.sxxm.med.community.entity.PostLike;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

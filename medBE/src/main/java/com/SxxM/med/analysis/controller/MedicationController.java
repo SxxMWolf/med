@@ -1,7 +1,7 @@
-package com.SxxM.med.analysis.controller;
+package com.sxxm.med.analysis.controller;
 
-import com.SxxM.med.analysis.dto.MedicationInfo;
-import com.SxxM.med.analysis.service.MedicationDbService;
+import com.sxxm.med.analysis.dto.MedicationInfo;
+import com.sxxm.med.analysis.service.MedicationDbService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

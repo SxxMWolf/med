@@ -1,6 +1,6 @@
-package com.SxxM.med.config;
+package com.sxxm.med.config;
 
-import com.SxxM.med.security.JwtAuthenticationFilter;
+import com.sxxm.med.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,19 +30,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/health", "/api/health/**")
+                        .permitAll()
+                        .requestMatchers("/actuator/health", "/actuator/**")
+                        .permitAll()
                         .requestMatchers(
                                 "/api/auth/register",
                                 "/api/auth/login", 
                                 "/api/auth/find-username", 
                                 "/api/auth/find-password",
                                 "/api/medications/search",
-                                "/api/health",
-                                "/actuator/health",
-                                "/actuator/info",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",

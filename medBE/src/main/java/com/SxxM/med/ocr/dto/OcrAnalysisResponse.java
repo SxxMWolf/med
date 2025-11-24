@@ -1,4 +1,4 @@
-package com.SxxM.med.ocr.dto;
+package com.sxxm.med.ocr.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

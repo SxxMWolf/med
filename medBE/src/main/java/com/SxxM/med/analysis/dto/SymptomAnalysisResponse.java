@@ -1,4 +1,4 @@
-package com.SxxM.med.analysis.dto;
+package com.sxxm.med.analysis.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

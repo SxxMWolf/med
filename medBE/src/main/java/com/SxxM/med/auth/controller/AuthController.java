@@ -1,10 +1,10 @@
-package com.SxxM.med.auth.controller;
+package com.sxxm.med.auth.controller;
 
-import com.SxxM.med.auth.dto.*;
-import com.SxxM.med.auth.entity.User;
-import com.SxxM.med.auth.service.AuthService;
-import com.SxxM.med.auth.service.PasswordService;
-import com.SxxM.med.auth.service.UserService;
+import com.sxxm.med.auth.dto.*;
+import com.sxxm.med.auth.entity.User;
+import com.sxxm.med.auth.service.AuthService;
+import com.sxxm.med.auth.service.PasswordService;
+import com.sxxm.med.auth.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

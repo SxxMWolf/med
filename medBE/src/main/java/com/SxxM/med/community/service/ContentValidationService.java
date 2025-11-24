@@ -1,6 +1,6 @@
-package com.SxxM.med.community.service;
+package com.sxxm.med.community.service;
 
-import com.SxxM.med.analysis.service.GptService;
+import com.sxxm.med.analysis.service.GptService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

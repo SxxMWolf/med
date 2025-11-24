@@ -1,6 +1,6 @@
-package com.SxxM.med.analysis.repository;
+package com.sxxm.med.analysis.repository;
 
-import com.SxxM.med.analysis.entity.SideEffectReport;
+import com.sxxm.med.analysis.entity.SideEffectReport;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

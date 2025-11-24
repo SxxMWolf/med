@@ -1,6 +1,6 @@
-package com.SxxM.med.analysis.service;
+package com.sxxm.med.analysis.service;
 
-import com.SxxM.med.analysis.dto.MedicationInfo;
+import com.sxxm.med.analysis.dto.MedicationInfo;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

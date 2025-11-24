@@ -1,4 +1,4 @@
-package com.SxxM.med;
+package com.sxxm.med;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

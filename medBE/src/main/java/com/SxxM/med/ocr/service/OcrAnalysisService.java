@@ -1,14 +1,14 @@
-package com.SxxM.med.ocr.service;
+package com.sxxm.med.ocr.service;
 
-import com.SxxM.med.auth.entity.User;
-import com.SxxM.med.auth.entity.UserAllergy;
-import com.SxxM.med.auth.repository.UserAllergyRepository;
-import com.SxxM.med.auth.repository.UserRepository;
-import com.SxxM.med.analysis.service.PythonApiService;
-import com.SxxM.med.ocr.dto.OcrAnalysisRequest;
-import com.SxxM.med.ocr.dto.OcrAnalysisResponse;
-import com.SxxM.med.ocr.entity.OcrIngredient;
-import com.SxxM.med.ocr.repository.OcrIngredientRepository;
+import com.sxxm.med.auth.entity.User;
+import com.sxxm.med.auth.entity.UserAllergy;
+import com.sxxm.med.auth.repository.UserAllergyRepository;
+import com.sxxm.med.auth.repository.UserRepository;
+import com.sxxm.med.analysis.service.PythonApiService;
+import com.sxxm.med.ocr.dto.OcrAnalysisRequest;
+import com.sxxm.med.ocr.dto.OcrAnalysisResponse;
+import com.sxxm.med.ocr.entity.OcrIngredient;
+import com.sxxm.med.ocr.repository.OcrIngredientRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

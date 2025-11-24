@@ -1,10 +1,10 @@
-package com.SxxM.med.auth.controller;
+package com.sxxm.med.auth.controller;
 
-import com.SxxM.med.auth.dto.UserAllergyResponse;
-import com.SxxM.med.auth.entity.User;
-import com.SxxM.med.auth.entity.UserAllergy;
-import com.SxxM.med.auth.repository.UserAllergyRepository;
-import com.SxxM.med.auth.repository.UserRepository;
+import com.sxxm.med.auth.dto.UserAllergyResponse;
+import com.sxxm.med.auth.entity.User;
+import com.sxxm.med.auth.entity.UserAllergy;
+import com.sxxm.med.auth.repository.UserAllergyRepository;
+import com.sxxm.med.auth.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

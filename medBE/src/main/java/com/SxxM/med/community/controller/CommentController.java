@@ -1,10 +1,10 @@
-package com.SxxM.med.community.controller;
+package com.sxxm.med.community.controller;
 
-import com.SxxM.med.auth.entity.User;
-import com.SxxM.med.auth.repository.UserRepository;
-import com.SxxM.med.community.dto.*;
-import com.SxxM.med.community.service.CommentService;
-import com.SxxM.med.community.service.LikeService;
+import com.sxxm.med.auth.entity.User;
+import com.sxxm.med.auth.repository.UserRepository;
+import com.sxxm.med.community.dto.*;
+import com.sxxm.med.community.service.CommentService;
+import com.sxxm.med.community.service.LikeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

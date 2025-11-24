@@ -1,4 +1,4 @@
-package com.SxxM.med.analysis.service;
+package com.sxxm.med.analysis.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

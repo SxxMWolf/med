@@ -1,4 +1,4 @@
-package com.SxxM.med.auth.dto;
+package com.sxxm.med.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

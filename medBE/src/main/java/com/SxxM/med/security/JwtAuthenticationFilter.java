@@ -1,6 +1,6 @@
-package com.SxxM.med.security;
+package com.sxxm.med.security;
 
-import com.SxxM.med.config.JwtConfig;
+import com.sxxm.med.config.JwtConfig;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -62,6 +62,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         
         filterChain.doFilter(request, response);
+    }
+    
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/api/health") ||
+               path.startsWith("/actuator/");
     }
     
     private String getTokenFromRequest(HttpServletRequest request) {

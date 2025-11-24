@@ -1,6 +1,6 @@
-package com.SxxM.med.community.repository;
+package com.sxxm.med.community.repository;
 
-import com.SxxM.med.community.entity.Comment;
+import com.sxxm.med.community.entity.Comment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

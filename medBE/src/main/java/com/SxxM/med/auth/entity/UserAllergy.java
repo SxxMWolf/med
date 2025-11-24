@@ -1,4 +1,4 @@
-package com.SxxM.med.auth.entity;
+package com.sxxm.med.auth.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

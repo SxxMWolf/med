@@ -1,4 +1,4 @@
-package com.SxxM.med.ocr.dto;
+package com.sxxm.med.ocr.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

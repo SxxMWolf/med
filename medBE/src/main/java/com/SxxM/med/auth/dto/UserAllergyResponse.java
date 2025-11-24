@@ -1,7 +1,7 @@
-package com.SxxM.med.auth.dto;
+package com.sxxm.med.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.SxxM.med.auth.entity.UserAllergy;
+import com.sxxm.med.auth.entity.UserAllergy;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

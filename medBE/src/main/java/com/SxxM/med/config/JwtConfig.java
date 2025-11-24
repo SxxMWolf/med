@@ -1,4 +1,4 @@
-package com.SxxM.med.config;
+package com.sxxm.med.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

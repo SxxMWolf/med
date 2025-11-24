@@ -1,6 +1,6 @@
-package com.SxxM.med.auth.repository;
+package com.sxxm.med.auth.repository;
 
-import com.SxxM.med.auth.entity.UserAllergy;
+import com.sxxm.med.auth.entity.UserAllergy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,10 +1,10 @@
-package com.SxxM.med.analysis.service;
+package com.sxxm.med.analysis.service;
 
-import com.SxxM.med.auth.entity.UserAllergy;
-import com.SxxM.med.auth.repository.UserAllergyRepository;
-import com.SxxM.med.auth.repository.UserRepository;
-import com.SxxM.med.analysis.dto.SymptomAnalysisRequest;
-import com.SxxM.med.analysis.dto.SymptomAnalysisResponse;
+import com.sxxm.med.auth.entity.UserAllergy;
+import com.sxxm.med.auth.repository.UserAllergyRepository;
+import com.sxxm.med.auth.repository.UserRepository;
+import com.sxxm.med.analysis.dto.SymptomAnalysisRequest;
+import com.sxxm.med.analysis.dto.SymptomAnalysisResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

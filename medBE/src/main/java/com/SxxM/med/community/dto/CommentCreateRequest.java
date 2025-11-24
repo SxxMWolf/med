@@ -1,4 +1,4 @@
-package com.SxxM.med.community.dto;
+package com.sxxm.med.community.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

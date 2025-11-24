@@ -1,14 +1,14 @@
-package com.SxxM.med.community.service;
+package com.sxxm.med.community.service;
 
-import com.SxxM.med.auth.entity.User;
-import com.SxxM.med.auth.repository.UserRepository;
-import com.SxxM.med.community.dto.*;
-import com.SxxM.med.community.entity.Comment;
-import com.SxxM.med.community.entity.Post;
-import com.SxxM.med.community.repository.CommentLikeRepository;
-import com.SxxM.med.community.repository.CommentRepository;
-import com.SxxM.med.community.repository.PostLikeRepository;
-import com.SxxM.med.community.repository.PostRepository;
+import com.sxxm.med.auth.entity.User;
+import com.sxxm.med.auth.repository.UserRepository;
+import com.sxxm.med.community.dto.*;
+import com.sxxm.med.community.entity.Comment;
+import com.sxxm.med.community.entity.Post;
+import com.sxxm.med.community.repository.CommentLikeRepository;
+import com.sxxm.med.community.repository.CommentRepository;
+import com.sxxm.med.community.repository.PostLikeRepository;
+import com.sxxm.med.community.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

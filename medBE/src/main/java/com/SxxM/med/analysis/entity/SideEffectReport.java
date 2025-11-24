@@ -1,6 +1,6 @@
-package com.SxxM.med.analysis.entity;
+package com.sxxm.med.analysis.entity;
 
-import com.SxxM.med.auth.entity.User;
+import com.sxxm.med.auth.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
