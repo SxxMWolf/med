@@ -41,6 +41,9 @@ dependencies {
 	// Google Vision
 	implementation 'com.google.cloud:google-cloud-vision:3.40.0'
 
+	// Spring Boot Actuator (헬스체크 및 모니터링)
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'org.postgresql:postgresql'

@@ -1,43 +1,46 @@
 # Gradle
 .gradle/
 build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
+!build/libs/*.jar
+.gradletasknamecache
 
-# IntelliJ IDEA
+# IDE
 .idea/
-*.iws
+.vscode/
 *.iml
 *.ipr
-out/
-
-# Eclipse
+*.iws
+.settings/
 .classpath
 .project
-.settings/
-bin/
 
-# VS Code
-.vscode/
-
-# macOS
+# OS
 .DS_Store
-
-# Environment variables
-.env
-.env.local
-
-# Logs
-*.log
-logs/
-
-# Temporary files
-*.tmp
+Thumbs.db
 *.swp
 *.swo
 *~
 
-# Application specific
+# Logs
+logs/
+*.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Google Credentials
+google-credentials.json
+*.json
+!package.json
+
+# Docker
+docker-compose.override.yml
+
+# Application
 application-local.properties
 
+# Temporary files
+tmp/
+temp/
