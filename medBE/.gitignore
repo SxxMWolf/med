@@ -44,3 +44,9 @@ application-local.properties
 # Temporary files
 tmp/
 temp/
+
+# SSL Certificates (민감한 정보이므로 Git에 포함하지 않음)
+nginx/ssl/*.pem
+nginx/ssl/*.key
+nginx/ssl/*.crt
+nginx/nginx.conf.bak
