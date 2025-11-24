@@ -54,7 +54,9 @@ public class CorsConfig {
         healthConfig.setMaxAge(3600L);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // Health check 경로는 가장 먼저 등록 (우선순위)
         source.registerCorsConfiguration("/api/health", healthConfig);
+        source.registerCorsConfiguration("/api/health/**", healthConfig);
         source.registerCorsConfiguration("/actuator/**", healthConfig);
         source.registerCorsConfiguration("/**", configuration);
         
