@@ -29,7 +29,6 @@ export default function SideEffectAnalysisPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
 
     const validMedications = medicationNames.filter((name) => name.trim() !== '');
     if (validMedications.length === 0) {
@@ -43,7 +42,7 @@ export default function SideEffectAnalysisPage() {
 
     try {
       const data = await analysisApi.analyzeSideEffect({
-        userId: user.id,
+        userId: user?.id || 0, // 로그인하지 않은 경우 0 사용
         medicationNames: validMedications,
         description: description || undefined,
       });

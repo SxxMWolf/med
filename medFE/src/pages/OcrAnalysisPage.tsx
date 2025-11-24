@@ -34,7 +34,7 @@ export default function OcrAnalysisPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !imageFile) {
+    if (!imageFile) {
       setError('이미지를 선택해주세요.');
       return;
     }
@@ -56,7 +56,7 @@ export default function OcrAnalysisPage() {
       });
 
       const data = await analysisApi.analyzeOcr({
-        userId: user.id,
+        ...(user?.id && { userId: user.id }), // 로그인한 경우에만 userId 전송
         imageData: base64,
         base64: true,
       });

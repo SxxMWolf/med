@@ -12,7 +12,10 @@ export default function SymptomAnalysisPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!symptomText.trim()) {
+      setError('증상을 입력해주세요.');
+      return;
+    }
 
     setError('');
     setLoading(true);
@@ -20,7 +23,7 @@ export default function SymptomAnalysisPage() {
 
     try {
       const data = await analysisApi.analyzeSymptom({
-        userId: user.id,
+        userId: user?.id || 0, // 로그인하지 않은 경우 0 사용
         symptomText,
       });
       setResult(data);

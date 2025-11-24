@@ -15,18 +15,22 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // 외부 Origin 허용 (모든 origin 허용)
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        // 개발 환경: localhost 허용
+        // 프로덕션: Vercel 도메인 및 실제 도메인 허용
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+            "http://localhost:*",
+            "http://127.0.0.1:*",
+            "https://*.vercel.app",
+            "https://med-rosy.vercel.app"
+        ));
         
-        // 개발 환경: localhost:3000 허용 (프론트엔드)
-        // 주의: setAllowedOriginPatterns와 setAllowCredentials(true)는 함께 사용할 수 없음
+        // JWT 토큰 등 credentials가 필요한 경우 아래 설정 사용 (와일드카드 패턴과 함께 사용 불가)
         // configuration.setAllowedOrigins(Arrays.asList(
         //     "http://localhost:3000",
         //     "http://localhost:3001",
-        //     "http://127.0.0.1:3000",
-        //     "http://127.0.0.1:3001"
+        //     "https://med-rosy.vercel.app"
         // ));
-        // 프로덕션에서는: Arrays.asList("https://yourdomain.com", "https://www.yourdomain.com")
+        // configuration.setAllowCredentials(true);
         
         // 허용할 HTTP 메서드
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));

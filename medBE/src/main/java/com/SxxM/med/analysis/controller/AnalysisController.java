@@ -12,7 +12,6 @@ import com.sxxm.med.ocr.service.OcrAnalysisService;
 import com.sxxm.med.analysis.service.SideEffectAnalysisService;
 import com.sxxm.med.analysis.service.SymptomAnalysisService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -66,32 +65,29 @@ public class AnalysisController {
     
     @PostMapping("/ocr")
     @Operation(summary = "OCR 분석", description = "의약품 성분표 이미지를 OCR로 분석하여 성분 리스트 및 안전성을 평가합니다.")
-    @SecurityRequirement(name = "BearerAuth")
     public ResponseEntity<OcrAnalysisResponse> analyzeOcr(
             Authentication authentication,
             @Valid @RequestBody OcrAnalysisRequest request
     ) {
         try {
-            // JWT에서 사용자 정보 추출
-            if (authentication == null || authentication.getName() == null) {
-                log.error("인증 정보가 없습니다");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            // JWT에서 사용자 정보 추출 (인증이 있으면 userId 설정, 없으면 null 허용)
+            if (authentication != null && authentication.getName() != null) {
+                String username = authentication.getName();
+                Optional<User> userOpt = userRepository.findByUsername(username);
+                if (userOpt.isPresent()) {
+                    User user = userOpt.get();
+                    // 요청의 userId를 JWT에서 추출한 userId로 덮어쓰기
+                    request.setUserId(user.getId());
+                    log.info("OCR 분석 시작: userId={}, username={}", user.getId(), username);
+                } else {
+                    log.warn("사용자를 찾을 수 없습니다: {}, userId 없이 진행", username);
+                }
+            } else {
+                log.info("인증 정보가 없습니다. 비로그인 사용자로 OCR 분석 진행");
             }
             
-            String username = authentication.getName();
-            Optional<User> userOpt = userRepository.findByUsername(username);
-            if (userOpt.isEmpty()) {
-                log.error("사용자를 찾을 수 없습니다: {}", username);
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
-            
-            User user = userOpt.get();
-            // 요청의 userId를 JWT에서 추출한 userId로 덮어쓰기
-            request.setUserId(user.getId());
-            
-            log.info("OCR 분석 시작: userId={}, username={}", user.getId(), username);
             OcrAnalysisResponse response = ocrAnalysisService.analyzeOcrImage(request);
-            log.info("OCR 분석 완료: userId={}", user.getId());
+            log.info("OCR 분석 완료: userId={}", request.getUserId());
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             log.error("OCR 분석 요청 처리 중 오류 발생: {}", e.getMessage(), e);

@@ -42,7 +42,11 @@ public class SecurityConfig {
                                 "/api/auth/login", 
                                 "/api/auth/find-username", 
                                 "/api/auth/find-password",
+                                "/api/analysis/symptom",
+                                "/api/analysis/side-effect",
+                                "/api/analysis/ocr",
                                 "/api/medications/search",
+                                "/api/medications/search/batch",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
@@ -51,9 +55,11 @@ public class SecurityConfig {
                         )
                         .permitAll()
                         .requestMatchers("/api/posts", "/api/posts/**")
-                        .permitAll() // 게시글 조회는 공개
-                        .requestMatchers("/api/comments/post/**")
-                        .permitAll() // 댓글 조회는 공개
+                        .authenticated() // 게시글 관리 API는 인증 필요
+                        .requestMatchers("/api/comments", "/api/comments/**")
+                        .authenticated() // 댓글 관리 API는 인증 필요
+                        .requestMatchers("/api/users", "/api/users/**")
+                        .authenticated() // 사용자 및 알러지 관리 API는 인증 필요
                         .anyRequest()
                         .authenticated()
                 )

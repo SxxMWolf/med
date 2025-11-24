@@ -106,7 +106,7 @@ export interface SideEffectAnalysisResponse {
 
 // OCR 분석 관련 타입
 export interface OcrAnalysisRequest {
-  userId: number;
+  userId?: number; // 로그인하지 않은 경우 optional
   imageData: string;
   base64?: boolean;
 }
