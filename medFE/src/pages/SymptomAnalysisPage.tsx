@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { analysisApi } from '../api/analysis';
 import { useAuthStore } from '../store/authStore';
 import type { SymptomAnalysisResponse } from '../types/api';
@@ -41,6 +42,20 @@ export default function SymptomAnalysisPage() {
         <p className="text-gray-600 mb-6">
           현재 겪고 있는 증상을 입력하시면, 알러지 정보를 고려하여 안전한 의약품을 추천해드립니다.
         </p>
+
+        {!user && (
+          <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p className="text-blue-800 text-sm">
+              💡 <strong>더 정확한 약 추천을 받으시려면?</strong>
+            </p>
+            <p className="text-blue-700 text-sm mt-2">
+              <Link to="/login" className="underline font-medium hover:text-blue-900">
+                로그인
+              </Link>
+              {' '}후 알러지 정보를 등록하시면, 본인에게 맞는 맞춤형 약물을 더 정확하게 추천받을 수 있습니다.
+            </p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="mb-8">
           <div className="bg-white rounded-lg shadow p-6">
