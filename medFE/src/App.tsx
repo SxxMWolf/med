@@ -12,6 +12,7 @@ import MyPage from './pages/MyPage';
 import PostsListPage from './pages/PostsListPage';
 import PostCreatePage from './pages/PostCreatePage';
 import PostDetailPage from './pages/PostDetailPage';
+import TestPage from './pages/TestPage';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
@@ -41,6 +42,7 @@ function App() {
           <Route path="side-effect" element={<SideEffectAnalysisPage />} />
           <Route path="ocr" element={<OcrAnalysisPage />} />
           <Route path="mypage" element={<MyPage />} />
+          <Route path="test" element={<TestPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
