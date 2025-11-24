@@ -14,7 +14,7 @@ if (typeof window !== 'undefined') {
     console.error('❌ 프로덕션 환경에서 VITE_API_BASE_URL이 설정되지 않았습니다!');
     console.error('   Vercel 대시보드에서 환경 변수를 설정하세요:');
     console.error('   Key: VITE_API_BASE_URL');
-    console.error('   Value: http://16.184.46.179:8080');
+    console.error('   Value: https://16.184.46.179');
   }
 }
 
