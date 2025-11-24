@@ -12,7 +12,6 @@ export default function PostsListPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [category, setCategory] = useState<string>('');
-  const [searchQuery, setSearchQuery] = useState('');
 
   const pageSize = 10;
 
@@ -66,8 +65,6 @@ export default function PostsListPage() {
       minute: '2-digit',
     });
   };
-
-  const categories = ['', 'GENERAL', 'QUESTION', 'REVIEW', 'TIP'];
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">

@@ -226,3 +226,26 @@ export interface ImageUploadResponse {
   imageUrl: string;
 }
 
+// 인증 추가 타입
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface ChangeNicknameRequest {
+  nickname: string;
+}
+
+export interface MessageResponse {
+  message: string;
+}
+
+export interface FindUsernameRequest {
+  email: string;
+}
+
+export interface FindPasswordRequest {
+  username: string;
+  email: string;
+}
+
