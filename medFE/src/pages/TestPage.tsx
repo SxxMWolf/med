@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { apiClient } from '../api/client';
+import api from '@/api';
 
 export default function TestPage() {
   const [result, setResult] = useState<any>(null);
@@ -8,7 +8,7 @@ export default function TestPage() {
 
   useEffect(() => {
     setLoading(true);
-    apiClient
+    api
       .get('/api/health')
       .then((res) => {
         console.log('OK:', res.data);
@@ -58,7 +58,7 @@ export default function TestPage() {
               setLoading(true);
               setError(null);
               setResult(null);
-              apiClient
+              api
                 .get('/api/health')
                 .then((res) => {
                   console.log('OK:', res.data);

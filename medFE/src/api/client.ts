@@ -4,19 +4,18 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 // 프로덕션에서는 환경 변수로 설정된 URL 사용
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
-// 디버깅: baseURL 확인 (개발 환경에서만)
-if (typeof window !== 'undefined' && import.meta.env.DEV) {
+// 디버깅: baseURL 확인
+if (typeof window !== 'undefined') {
   console.log('🔍 API 설정 확인:');
   console.log('  - VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL || '(설정되지 않음)');
   console.log('  - 사용할 baseURL:', API_BASE_URL || '(빈 값 - 상대 경로 사용)');
-}
-
-// 프로덕션 환경에서 baseURL이 없으면 경고
-if (typeof window !== 'undefined' && import.meta.env.PROD && !API_BASE_URL) {
-  console.error('❌ 프로덕션 환경에서 VITE_API_BASE_URL이 설정되지 않았습니다!');
-  console.error('   Vercel 대시보드에서 환경 변수를 설정하세요:');
-  console.error('   Key: VITE_API_BASE_URL');
-  console.error('   Value: https://16.184.46.179');
+  
+  if (!API_BASE_URL && import.meta.env.PROD) {
+    console.error('❌ 프로덕션 환경에서 VITE_API_BASE_URL이 설정되지 않았습니다!');
+    console.error('   Vercel 대시보드에서 환경 변수를 설정하세요:');
+    console.error('   Key: VITE_API_BASE_URL');
+    console.error('   Value: https://16.184.46.179');
+  }
 }
 
 class ApiClient {
@@ -30,13 +29,44 @@ class ApiClient {
       },
     });
 
-    // 요청 인터셉터: JWT 토큰 자동 추가
+    // 요청 인터셉터: JWT 토큰 자동 추가 (로그인 필수 API만)
     this.client.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
         const token = localStorage.getItem('accessToken');
-        if (token && config.headers) {
+        const fullURL = config.baseURL 
+          ? `${config.baseURL}${config.url}` 
+          : config.url || '';
+        
+        // 로그인 없이 사용 가능한 API 경로 목록
+        const publicApiPaths = [
+          '/api/analysis/symptom',
+          '/api/analysis/side-effect',
+          '/api/analysis/ocr',
+          '/api/medications/search',
+          '/api/medications/search/batch',
+        ];
+        
+        // 현재 요청이 공개 API인지 확인
+        const isPublicApi = config.url && publicApiPaths.some(path => 
+          config.url?.startsWith(path)
+        );
+        
+        console.log('API 요청:', {
+          url: config.url,
+          method: config.method,
+          baseURL: config.baseURL || '(상대 경로)',
+          fullURL: fullURL,
+          isPublicApi: isPublicApi,
+          hasToken: !!token,
+        });
+        
+        // 공개 API가 아니고 토큰이 있으면 추가
+        if (!isPublicApi && token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
+        } else if (!isPublicApi && !token) {
+          console.warn('No access token found in localStorage (인증 필요 API)');
         }
+        
         return config;
       },
       (error) => {

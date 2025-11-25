@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { postsApi } from '../api/posts';
 import { commentsApi } from '../api/comments';
 import { useAuthStore } from '../store/authStore';
-import { formatDate } from '../utils/date';
 import type { PostResponse, CommentResponse } from '../types/api';
 
 export default function PostDetailPage() {
@@ -155,6 +154,17 @@ export default function PostDetailPage() {
     }
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -168,13 +178,21 @@ export default function PostDetailPage() {
   if (error && !post) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="mb-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+          >
+            ← 뒤로 가기
+          </button>
+        </div>
         <div className="text-center py-12">
           <div className="text-red-500 mb-4">{error}</div>
           <button
-            onClick={() => navigate('/posts')}
+            onClick={() => navigate(-1)}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            목록으로
+            뒤로 가기
           </button>
         </div>
       </div>
@@ -191,10 +209,10 @@ export default function PostDetailPage() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="mb-4">
         <button
-          onClick={() => navigate('/posts')}
-          className="text-blue-600 hover:text-blue-800"
+          onClick={() => navigate(-1)}
+          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
         >
-          ← 목록으로
+          ← 뒤로 가기
         </button>
       </div>
 

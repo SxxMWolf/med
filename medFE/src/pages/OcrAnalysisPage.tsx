@@ -1,5 +1,4 @@
 import { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import { analysisApi } from '../api/analysis';
 import { useAuthStore } from '../store/authStore';
 import type { OcrAnalysisResponse } from '../types/api';
@@ -57,7 +56,7 @@ export default function OcrAnalysisPage() {
       });
 
       const data = await analysisApi.analyzeOcr({
-        ...(user?.id && { userId: user.id }), // 로그인한 경우에만 userId 전송
+        userId: user?.id || 0, // 로그인하지 않은 경우 0 사용
         imageData: base64,
         base64: true,
       });
@@ -129,20 +128,6 @@ export default function OcrAnalysisPage() {
         <p className="text-gray-600 mb-6">
           약물 성분표 사진을 업로드하시면, OCR로 성분을 추출하고 알러지 정보와 비교하여 안전성을 평가합니다.
         </p>
-
-        {!user && (
-          <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-blue-800 text-sm">
-              💡 <strong>더 정확한 성분 분석을 받으시려면?</strong>
-            </p>
-            <p className="text-blue-700 text-sm mt-2">
-              <Link to="/login" className="underline font-medium hover:text-blue-900">
-                로그인
-              </Link>
-              {' '}후 알러지 정보를 등록하시면, 본인에게 피해야 할 성분을 더 자세히 알 수 있습니다.
-            </p>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="mb-8">
           <div className="bg-white rounded-lg shadow p-6">

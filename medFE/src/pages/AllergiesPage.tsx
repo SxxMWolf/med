@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { usersApi } from '../api/users';
 import { useAuthStore } from '../store/authStore';
 import type { UserAllergy } from '../types/api';
 
 export default function AllergiesPage() {
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const [allergies, setAllergies] = useState<UserAllergy[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -18,6 +19,8 @@ export default function AllergiesPage() {
   useEffect(() => {
     if (user) {
       loadAllergies();
+    } else {
+      setLoading(false);
     }
   }, [user]);
 
@@ -72,6 +75,32 @@ export default function AllergiesPage() {
     MODERATE: '보통',
     SEVERE: '심각',
   };
+
+  // 로그인하지 않은 경우 안내 메시지 표시
+  if (!isAuthenticated) {
+    return (
+      <div className="px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">알러지 관리</h1>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
+            <div className="text-4xl mb-4">🔒</div>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+              로그인 후 사용 가능합니다
+            </h2>
+            <p className="text-gray-600 mb-6">
+              알러지 관리를 사용하려면 로그인이 필요합니다.
+            </p>
+            <Link
+              to="/login"
+              className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              로그인하기
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return <div className="text-center py-8">로딩 중...</div>;

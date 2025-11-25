@@ -45,11 +45,19 @@ export default function PostCreatePage() {
   };
 
   const handleCancel = () => {
-    navigate('/posts');
+    navigate(-1); // 이전 화면으로 이동
   };
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="mb-4">
+        <button
+          onClick={() => navigate(-1)}
+          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+        >
+          ← 뒤로 가기
+        </button>
+      </div>
       <h1 className="text-3xl font-bold text-gray-900 mb-6">게시글 작성</h1>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-6">

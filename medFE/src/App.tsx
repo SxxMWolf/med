@@ -25,18 +25,21 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        {/* Public Routes - 로그인 없이 접근 가능 */}
-        <Route path="/" element={<Layout />}>
+        {/* 로그인 없이 접근 가능한 페이지 */}
+        <Route
+          path="/"
+          element={<Layout />}
+        >
           <Route index element={<HomePage />} />
           <Route path="symptom" element={<SymptomAnalysisPage />} />
           <Route path="side-effect" element={<SideEffectAnalysisPage />} />
           <Route path="ocr" element={<OcrAnalysisPage />} />
-          <Route path="test" element={<TestPage />} />
-          {/* 커뮤니티 읽기 - 로그인 없이 접근 가능 */}
           <Route path="posts" element={<PostsListPage />} />
           <Route path="posts/:postId" element={<PostDetailPage />} />
+          <Route path="allergies" element={<AllergiesPage />} />
         </Route>
-        {/* Private Routes - 로그인 필수 */}
+        
+        {/* 로그인 필수 페이지 */}
         <Route
           path="/"
           element={
@@ -46,8 +49,8 @@ function App() {
           }
         >
           <Route path="posts/create" element={<PostCreatePage />} />
-          <Route path="allergies" element={<AllergiesPage />} />
           <Route path="mypage" element={<MyPage />} />
+          <Route path="test" element={<TestPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

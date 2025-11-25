@@ -2,12 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { postsApi } from '../api/posts';
 import { useAuthStore } from '../store/authStore';
-import { formatDate } from '../utils/date';
 import type { PostResponse, PagePostResponse } from '../types/api';
 
 export default function PostsListPage() {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const [posts, setPosts] = useState<PostResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,23 +54,32 @@ export default function PostsListPage() {
   };
 
   const handleCreatePost = () => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
     navigate('/posts/create');
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">커뮤니티</h1>
-        <button
-          onClick={handleCreatePost}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          글쓰기
-        </button>
+        {isAuthenticated && (
+          <button
+            onClick={handleCreatePost}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            글쓰기
+          </button>
+        )}
       </div>
 
       {/* 카테고리 필터 */}
