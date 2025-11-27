@@ -216,16 +216,84 @@ export default function OcrAnalysisPage() {
               </div>
             )}
 
+            {result.analysis.foodAllergyRisk && result.analysis.foodAllergyRisk.hasRisk && (
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
+                <h2 className="text-xl font-semibold text-orange-900 mb-4">
+                  🥜 식품 알러지 위험 분석
+                </h2>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={`px-3 py-1 text-sm font-medium rounded ${
+                      result.analysis.foodAllergyRisk.riskLevel === 'HIGH' 
+                        ? 'bg-red-100 text-red-800'
+                        : result.analysis.foodAllergyRisk.riskLevel === 'MEDIUM'
+                        ? 'bg-orange-100 text-orange-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      위험도: {result.analysis.foodAllergyRisk.riskLevel}
+                    </span>
+                  </div>
+                  <p className="text-gray-700 mb-2">{result.analysis.foodAllergyRisk.explanation}</p>
+                  {result.analysis.matchedFoodAllergens && result.analysis.matchedFoodAllergens.length > 0 && (
+                    <div>
+                      <p className="text-sm font-semibold text-orange-900 mb-2">
+                        매칭된 식품 알러지:
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {result.analysis.matchedFoodAllergens.map((allergen, index) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 bg-red-100 border border-red-300 rounded-full text-sm text-red-800"
+                          >
+                            {allergen}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {result.analysis.foodOriginExcipientsDetected && result.analysis.foodOriginExcipientsDetected.length > 0 && (
+                    <div>
+                      <p className="text-sm font-semibold text-orange-900 mb-2">
+                        검출된 식품 유래 부형제:
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {result.analysis.foodOriginExcipientsDetected.map((excipient, index) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 bg-orange-100 border border-orange-300 rounded-full text-sm text-orange-800"
+                          >
+                            {excipient}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {result.analysis.ingredientRisks.length > 0 && (
               <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">⚠️ 성분 위험도 분석</h2>
                 <div className="space-y-4">
                   {result.analysis.ingredientRisks.map((risk, index) => (
                     <div key={index} className="border border-gray-200 rounded p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-semibold text-lg text-gray-900">
-                          {risk.ingredientName}
-                        </h3>
+                      <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold text-lg text-gray-900">
+                            {risk.ingredientName}
+                          </h3>
+                          {risk.isFoodOrigin && (
+                            <span className="px-2 py-1 text-xs font-medium rounded bg-orange-100 text-orange-800">
+                              식품 유래
+                            </span>
+                          )}
+                          {risk.foodAllergyMatch && (
+                            <span className="px-2 py-1 text-xs font-medium rounded bg-red-100 text-red-800">
+                              식품 알러지 매칭
+                            </span>
+                          )}
+                        </div>
                         <span
                           className={`px-2 py-1 text-xs font-medium rounded ${getRiskLevelColor(risk.riskLevel)}`}
                         >

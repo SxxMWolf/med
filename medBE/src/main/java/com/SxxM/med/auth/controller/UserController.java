@@ -78,6 +78,8 @@ public class UserController {
                 .description(request.get("description"))
                 .severity(UserAllergy.AllergySeverity.valueOf(
                         request.getOrDefault("severity", "MODERATE")))
+                .allergyType(UserAllergy.AllergyType.valueOf(
+                        request.getOrDefault("allergyType", "MEDICATION")))
                 .build();
         
         UserAllergy saved = userAllergyRepository.save(allergy);

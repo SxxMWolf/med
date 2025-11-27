@@ -21,6 +21,7 @@ public class UserAllergyResponse {
     private String ingredientName;
     private String description;
     private UserAllergy.AllergySeverity severity;
+    private UserAllergy.AllergyType allergyType;
     
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime createdAt;
@@ -37,6 +38,7 @@ public class UserAllergyResponse {
                 .ingredientName(allergy.getIngredientName())
                 .description(allergy.getDescription())
                 .severity(allergy.getSeverity())
+                .allergyType(allergy.getAllergyType())
                 .createdAt(allergy.getCreatedAt())
                 .updatedAt(allergy.getUpdatedAt())
                 .build();

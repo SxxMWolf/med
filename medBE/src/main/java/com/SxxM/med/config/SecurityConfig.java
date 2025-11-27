@@ -4,6 +4,7 @@ import com.sxxm.med.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -40,9 +41,7 @@ public class SecurityConfig {
                                 "/api/auth/login", 
                                 "/api/auth/find-username", 
                                 "/api/auth/find-password",
-                                "/api/analysis/symptom",
-                                "/api/analysis/side-effect",
-                                "/api/analysis/ocr",
+                                "/api/analysis/**",  // 분석 API 전체 허용
                                 "/api/medications/search",
                                 "/api/medications/search/batch",
                                 "/swagger-ui/**",
@@ -52,10 +51,16 @@ public class SecurityConfig {
                                 "/webjars/**"
                         )
                         .permitAll()
+                        // 게시글 조회(GET)는 공개, 작성/수정/삭제는 인증 필요
+                        .requestMatchers(HttpMethod.GET, "/api/posts", "/api/posts/**")
+                        .permitAll()
                         .requestMatchers("/api/posts/**")
-                        .authenticated() // 게시글 관리 API는 인증 필요
+                        .authenticated()
+                        // 댓글 조회(GET)는 공개, 작성/수정/삭제는 인증 필요
+                        .requestMatchers(HttpMethod.GET, "/api/comments/**")
+                        .permitAll()
                         .requestMatchers("/api/comments/**")
-                        .authenticated() // 댓글 관리 API는 인증 필요
+                        .authenticated()
                         .requestMatchers("/api/users/**")
                         .authenticated() // 사용자 및 알러지 관리 API는 인증 필요
                         .anyRequest()

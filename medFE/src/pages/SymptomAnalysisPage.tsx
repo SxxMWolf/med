@@ -100,7 +100,7 @@ export default function SymptomAnalysisPage() {
                       <h3 className="font-semibold text-lg text-gray-900 mb-2">{med.name}</h3>
                       <p className="text-gray-700 mb-2">{med.reason}</p>
                       {med.allergicIngredients.length > 0 && (
-                        <div>
+                        <div className="mb-3">
                           <p className="text-sm font-medium text-red-700 mb-1">
                             알러지 성분:
                           </p>
@@ -111,9 +111,66 @@ export default function SymptomAnalysisPage() {
                           </ul>
                         </div>
                       )}
+                      {med.foodAllergyRisk && med.foodAllergyRisk.hasRisk && (
+                        <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded">
+                          <p className="text-sm font-semibold text-orange-900 mb-1">
+                            🥜 식품 알러지 위험 감지
+                          </p>
+                          <p className="text-sm text-orange-800 mb-2">{med.foodAllergyRisk.explanation}</p>
+                          <span className={`inline-block px-2 py-1 text-xs font-medium rounded mb-2 ${
+                            med.foodAllergyRisk.riskLevel === 'HIGH' 
+                              ? 'bg-red-100 text-red-800'
+                              : med.foodAllergyRisk.riskLevel === 'MEDIUM'
+                              ? 'bg-orange-100 text-orange-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            위험도: {med.foodAllergyRisk.riskLevel}
+                          </span>
+                          {med.matchedFoodAllergens && med.matchedFoodAllergens.length > 0 && (
+                            <div className="mt-2">
+                              <p className="text-xs font-medium text-orange-900 mb-1">매칭된 식품 알러지:</p>
+                              <div className="flex flex-wrap gap-1">
+                                {med.matchedFoodAllergens.map((allergen, i) => (
+                                  <span key={i} className="px-2 py-1 text-xs bg-orange-100 text-orange-800 rounded">
+                                    {allergen}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {med.foodOriginExcipientsDetected && med.foodOriginExcipientsDetected.length > 0 && (
+                            <div className="mt-2">
+                              <p className="text-xs font-medium text-orange-900 mb-1">검출된 식품 유래 부형제:</p>
+                              <div className="flex flex-wrap gap-1">
+                                {med.foodOriginExcipientsDetected.map((excipient, i) => (
+                                  <span key={i} className="px-2 py-1 text-xs bg-orange-100 text-orange-800 rounded">
+                                    {excipient}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {result.foodAllergyWarnings && result.foodAllergyWarnings.length > 0 && (
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
+                <h2 className="text-2xl font-semibold text-orange-900 mb-4">
+                  🥜 식품 알러지 관련 경고
+                </h2>
+                <ul className="space-y-2">
+                  {result.foodAllergyWarnings.map((warning, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="mr-2">•</span>
+                      <span className="text-gray-700">{warning}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 

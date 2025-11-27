@@ -1,21 +1,33 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
-// 개발 환경에서는 Vite 프록시를 사용하므로 baseURL을 빈 문자열로 설정
+// ============================================
+// 로컬 개발 환경 설정
+// ============================================
+// 로컬 개발 환경에서는 Vite 프록시를 사용하므로 baseURL을 빈 문자열로 설정
+// vite.config.ts의 proxy 설정이 자동으로 /api 요청을 localhost:8080으로 프록시합니다.
+const API_BASE_URL = '';
+
+// ============================================
+// 배포 환경 설정 (주석 처리됨 - 배포 시 활성화)
+// ============================================
 // 프로덕션에서는 환경 변수로 설정된 URL 사용
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 // 디버깅: baseURL 확인
 if (typeof window !== 'undefined') {
   console.log('🔍 API 설정 확인:');
-  console.log('  - VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL || '(설정되지 않음)');
-  console.log('  - 사용할 baseURL:', API_BASE_URL || '(빈 값 - 상대 경로 사용)');
+  console.log('  - 환경:', import.meta.env.MODE);
+  console.log('  - 사용할 baseURL:', API_BASE_URL || '(빈 값 - Vite 프록시 사용)');
   
-  if (!API_BASE_URL && import.meta.env.PROD) {
-    console.error('❌ 프로덕션 환경에서 VITE_API_BASE_URL이 설정되지 않았습니다!');
-    console.error('   Vercel 대시보드에서 환경 변수를 설정하세요:');
-    console.error('   Key: VITE_API_BASE_URL');
-    console.error('   Value: https://16.184.46.179');
-  }
+  // ============================================
+  // 배포 환경 경고 (주석 처리됨 - 배포 시 활성화)
+  // ============================================
+  // if (!API_BASE_URL && import.meta.env.PROD) {
+  //   console.error('❌ 프로덕션 환경에서 VITE_API_BASE_URL이 설정되지 않았습니다!');
+  //   console.error('   Vercel 대시보드에서 환경 변수를 설정하세요:');
+  //   console.error('   Key: VITE_API_BASE_URL');
+  //   console.error('   Value: http://16.184.46.179:8080');
+  // }
 }
 
 class ApiClient {

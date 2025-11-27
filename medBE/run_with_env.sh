@@ -9,9 +9,19 @@ if [ -n "$JWT_SECRET" ]; then
     export JWT_SECRET="$JWT_SECRET"
 fi
 
+# MFDS API 환경 변수 설정 (시스템 환경 변수가 있으면 사용)
+if [ -n "$MFDS_API_URL" ]; then
+    export MFDS_API_URL="$MFDS_API_URL"
+fi
+if [ -n "$MFDS_API_KEY" ]; then
+    export MFDS_API_KEY="$MFDS_API_KEY"
+fi
+
 echo "=== 환경변수 설정 ==="
 echo "DB_USERNAME: $DB_USERNAME"
 echo "DB_PASSWORD: 설정됨 (길이: ${#DB_PASSWORD} 문자)"
+echo "MFDS_API_URL: ${MFDS_API_URL:-미설정}"
+echo "MFDS_API_KEY: ${MFDS_API_KEY:+설정됨 (길이: ${#MFDS_API_KEY} 문자)}${MFDS_API_KEY:-미설정}"
 echo ""
 
 echo "=== Med 애플리케이션 시작 ==="

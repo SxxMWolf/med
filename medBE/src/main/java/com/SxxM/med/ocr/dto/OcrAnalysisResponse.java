@@ -31,6 +31,9 @@ public class OcrAnalysisResponse {
         private List<String> expectedSideEffects;
         private String overallAssessment;
         private List<String> recommendations;
+        private String foodAllergyRisk;  // 식품 알러지 기반 위험도 평가 (LOW/MEDIUM/HIGH)
+        private List<String> matchedFoodAllergens;  // 사용자 식품 알러지와 매칭된 성분 리스트
+        private List<String> foodOriginExcipientsDetected;  // 식품 유래 의약품 부형제 목록
     }
     
     @Getter

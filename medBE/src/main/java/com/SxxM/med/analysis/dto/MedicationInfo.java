@@ -16,7 +16,8 @@ import java.util.List;
 public class MedicationInfo {
     
     private String name;
-    private List<String> ingredients;
+    private List<String> ingredients;  // 주성분 (active ingredients)
+    private List<String> excipients;   // 부형제 (excipients/additives)
     private String description;
     private String manufacturer;
 }

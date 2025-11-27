@@ -15,14 +15,24 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // 개발 환경: localhost 허용
-        // 프로덕션: Vercel 도메인 및 실제 도메인 허용
+        // ============================================
+        // 로컬 개발 환경 설정
+        // ============================================
         configuration.setAllowedOriginPatterns(Arrays.asList(
             "http://localhost:*",
-            "http://127.0.0.1:*",
-            "https://*.vercel.app",
-            "https://med-rosy.vercel.app"
+            "http://127.0.0.1:*"
         ));
+        
+        // ============================================
+        // 배포 환경 설정 (주석 처리됨 - 배포 시 활성화)
+        // ============================================
+        // 프로덕션: Vercel 도메인 및 실제 도메인 허용
+        // configuration.setAllowedOriginPatterns(Arrays.asList(
+        //     "http://localhost:*",
+        //     "http://127.0.0.1:*",
+        //     "https://*.vercel.app",
+        //     "https://med-rosy.vercel.app"
+        // ));
         
         // JWT 토큰 등 credentials가 필요한 경우 아래 설정 사용 (와일드카드 패턴과 함께 사용 불가)
         // configuration.setAllowedOrigins(Arrays.asList(

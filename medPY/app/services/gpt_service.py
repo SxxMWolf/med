@@ -27,7 +27,7 @@ class GptService:
         payload = {
             "model": self.model,
             "messages": [
-                {"role": "system", "content": "You are a medical assistant. Always respond in valid JSON format only."},
+                {"role": "system", "content": "You are a medical assistant. Always respond in valid JSON format only. All text content (descriptions, reasons, summaries, etc.) must be written in Korean (한글). Do not use English for any text fields."},
                 {"role": "user", "content": prompt}
             ],
             "temperature": 0.3,

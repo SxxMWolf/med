@@ -64,7 +64,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/api/health") || path.startsWith("/actuator/");
+        // 공개 API 경로는 JWT 필터를 건너뜀
+        return path.startsWith("/api/health") 
+                || path.startsWith("/actuator/")
+                || path.startsWith("/api/analysis/")  // 분석 API는 공개
+                || path.startsWith("/api/auth/")  // 인증 API는 공개
+                || path.startsWith("/api/medications/search");  // 약물 검색 API는 공개
     }
     
     private String getTokenFromRequest(HttpServletRequest request) {

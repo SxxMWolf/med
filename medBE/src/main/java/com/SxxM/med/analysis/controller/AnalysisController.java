@@ -54,8 +54,12 @@ public class AnalysisController {
         try {
             SideEffectAnalysisResponse response = sideEffectAnalysisService.analyzeSideEffect(request);
             return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            log.error("부작용 분석 요청 처리 중 오류 발생: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .build();
         } catch (Exception e) {
-            log.error("부작용 분석 요청 처리 중 오류 발생", e);
+            log.error("부작용 분석 요청 처리 중 예상치 못한 오류 발생", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

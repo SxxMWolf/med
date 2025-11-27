@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS user_allergies (
     ingredient_name VARCHAR(255) NOT NULL,
     description VARCHAR(1000),
     severity VARCHAR(20) CHECK (severity IN ('MILD', 'MODERATE', 'SEVERE')),
+    allergy_type VARCHAR(20) CHECK (allergy_type IN ('MEDICATION', 'FOOD')) DEFAULT 'MEDICATION',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_user_allergy_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

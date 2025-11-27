@@ -36,6 +36,10 @@ public class UserAllergy {
     @Enumerated(EnumType.STRING)
     private AllergySeverity severity;
     
+    @Column(name = "allergy_type")
+    @Enumerated(EnumType.STRING)
+    private AllergyType allergyType;
+    
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
@@ -55,6 +59,11 @@ public class UserAllergy {
     
     public enum AllergySeverity {
         MILD, MODERATE, SEVERE
+    }
+    
+    public enum AllergyType {
+        MEDICATION,  // 약물 알러지
+        FOOD         // 식품 알러지
     }
 }
 

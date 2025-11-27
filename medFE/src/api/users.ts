@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type { UserAllergy, User } from '../types/api';
+import type { UserAllergy, User, AllergyType, FoodAllergyCategory } from '../types/api';
 
 export const usersApi = {
   getUser: async (userId: number): Promise<User> => {
@@ -12,7 +12,16 @@ export const usersApi = {
     return response.data;
   },
 
-  addAllergy: async (userId: number, data: { ingredientName: string; description?: string; severity?: string }): Promise<UserAllergy> => {
+  addAllergy: async (
+    userId: number, 
+    data: { 
+      ingredientName: string; 
+      description?: string; 
+      severity?: string;
+      allergyType?: AllergyType;
+      foodCategory?: FoodAllergyCategory;
+    }
+  ): Promise<UserAllergy> => {
     const response = await apiClient.post<UserAllergy>(`/api/users/${userId}/allergies`, data);
     return response.data;
   },

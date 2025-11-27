@@ -34,12 +34,26 @@ export interface UserResponse {
 }
 
 // 알러지 관련 타입
+export type AllergyType = 'MEDICATION' | 'FOOD';
+export type FoodAllergyCategory = 
+  | 'PEANUT' 
+  | 'GLUTEN' 
+  | 'LACTOSE' 
+  | 'SHELLFISH' 
+  | 'EGG' 
+  | 'SOY' 
+  | 'TREE_NUT' 
+  | 'FISH' 
+  | 'OTHER';
+
 export interface UserAllergy {
   id: number;
   user: User;
   ingredientName: string;
   description?: string;
   severity: 'MILD' | 'MODERATE' | 'SEVERE';
+  allergyType?: AllergyType; // 약물 알러지 또는 식품 알러지
+  foodCategory?: FoodAllergyCategory; // 식품 알러지인 경우 카테고리
   createdAt: string;
   updatedAt: string;
 }
@@ -70,18 +84,34 @@ export interface NotRecommendedMedication {
   name: string;
   reason: string;
   allergicIngredients: string[];
+  foodAllergyRisk?: FoodAllergyRisk; // 식품 알러지 기반 위험 분석
+  matchedFoodAllergens?: string[]; // 사용자 식품 알러지와 매칭된 성분 리스트
+  foodOriginExcipientsDetected?: string[]; // 식품 유래 의약품 부형제 목록
+}
+
+export interface FoodAllergyRisk {
+  hasRisk: boolean;
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
+  matchedIngredients: string[];
+  explanation: string;
 }
 
 export interface SymptomAnalysisResponse {
   recommendedMedications: RecommendedMedication[];
   notRecommendedMedications: NotRecommendedMedication[];
   precautions: string[];
+  foodAllergyWarnings?: string[]; // 식품 알러지 관련 경고사항
 }
 
 // 부작용 분석 관련 타입
+export interface GroupRequest {
+  type: 'food' | 'drug';
+  items: string[];
+}
+
 export interface SideEffectAnalysisRequest {
-  userId: number;
-  medicationNames: string[];
+  userId?: number; // 선택적 (비로그인 사용자 지원)
+  groups: GroupRequest[]; // 사용자가 정의한 그룹 목록
   description?: string;
 }
 
@@ -89,6 +119,8 @@ export interface SensitiveIngredient {
   ingredientName: string;
   reason: string;
   severity: string;
+  isFoodOrigin?: boolean; // 식품 유래 성분 여부
+  foodAllergyMatch?: boolean; // 식품 알러지와 매칭 여부
 }
 
 export interface CommonSideEffectIngredient {
@@ -102,6 +134,11 @@ export interface SideEffectAnalysisResponse {
   userSensitiveIngredients: SensitiveIngredient[];
   commonSideEffectIngredients: CommonSideEffectIngredient[];
   summary: string;
+  foodAllergyAnalysis?: {
+    detectedFoodOriginIngredients: string[];
+    matchedAllergens: string[];
+    riskAssessment: string;
+  };
 }
 
 // OCR 분석 관련 타입
@@ -117,6 +154,8 @@ export interface IngredientRisk {
   allergyRisk: string;
   riskLevel: string;
   reason: string;
+  isFoodOrigin?: boolean; // 식품 유래 성분 여부
+  foodAllergyMatch?: boolean; // 식품 알러지와 매칭 여부
 }
 
 export interface IngredientAnalysis {
@@ -125,6 +164,9 @@ export interface IngredientAnalysis {
   expectedSideEffects: string[];
   overallAssessment: string;
   recommendations: string[];
+  foodAllergyRisk?: FoodAllergyRisk; // 식품 알러지 기반 위험 분석
+  matchedFoodAllergens?: string[]; // 사용자 식품 알러지와 매칭된 성분 리스트
+  foodOriginExcipientsDetected?: string[]; // 식품 유래 의약품 부형제 목록
 }
 
 export interface OcrAnalysisResponse {
@@ -137,6 +179,7 @@ export interface OcrAnalysisResponse {
 export interface MedicationInfo {
   name: string;
   ingredients: string[];
+  excipients?: string[]; // 부형제 목록
   description?: string;
   manufacturer?: string;
 }

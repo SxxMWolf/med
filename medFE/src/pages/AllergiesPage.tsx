@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { usersApi } from '../api/users';
 import { useAuthStore } from '../store/authStore';
-import type { UserAllergy } from '../types/api';
+import type { UserAllergy, AllergyType, FoodAllergyCategory } from '../types/api';
 
 export default function AllergiesPage() {
   const { user, isAuthenticated } = useAuthStore();
@@ -13,6 +13,8 @@ export default function AllergiesPage() {
     ingredientName: '',
     description: '',
     severity: 'MODERATE' as 'MILD' | 'MODERATE' | 'SEVERE',
+    allergyType: 'MEDICATION' as AllergyType,
+    foodCategory: undefined as FoodAllergyCategory | undefined,
   });
   const [error, setError] = useState('');
 
@@ -43,8 +45,25 @@ export default function AllergiesPage() {
 
     setError('');
     try {
-      await usersApi.addAllergy(user.id, formData);
-      setFormData({ ingredientName: '', description: '', severity: 'MODERATE' });
+      const submitData: any = {
+        ingredientName: formData.ingredientName,
+        description: formData.description,
+        severity: formData.severity,
+        allergyType: formData.allergyType,
+      };
+      
+      if (formData.allergyType === 'FOOD' && formData.foodCategory) {
+        submitData.foodCategory = formData.foodCategory;
+      }
+      
+      await usersApi.addAllergy(user.id, submitData);
+      setFormData({ 
+        ingredientName: '', 
+        description: '', 
+        severity: 'MODERATE',
+        allergyType: 'MEDICATION',
+        foodCategory: undefined,
+      });
       setShowAddForm(false);
       loadAllergies();
     } catch (err: any) {
@@ -74,6 +93,23 @@ export default function AllergiesPage() {
     MILD: '경미',
     MODERATE: '보통',
     SEVERE: '심각',
+  };
+
+  const foodCategoryLabels: Record<FoodAllergyCategory, string> = {
+    PEANUT: '땅콩',
+    GLUTEN: '글루텐',
+    LACTOSE: '유당',
+    SHELLFISH: '갑각류',
+    EGG: '계란',
+    SOY: '콩',
+    TREE_NUT: '견과류',
+    FISH: '생선',
+    OTHER: '기타',
+  };
+
+  const allergyTypeLabels = {
+    MEDICATION: '약물 알러지',
+    FOOD: '식품 알러지',
   };
 
   // 로그인하지 않은 경우 안내 메시지 표시
@@ -131,7 +167,53 @@ export default function AllergiesPage() {
             <form onSubmit={handleAdd} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  성분명 *
+                  알러지 유형 *
+                </label>
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  value={formData.allergyType}
+                  onChange={(e) =>
+                    setFormData({ 
+                      ...formData, 
+                      allergyType: e.target.value as AllergyType,
+                      foodCategory: e.target.value === 'FOOD' ? formData.foodCategory : undefined,
+                    })
+                  }
+                >
+                  <option value="MEDICATION">약물 알러지</option>
+                  <option value="FOOD">식품 알러지</option>
+                </select>
+              </div>
+              
+              {formData.allergyType === 'FOOD' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    식품 알러지 카테고리 *
+                  </label>
+                  <select
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    value={formData.foodCategory || ''}
+                    onChange={(e) =>
+                      setFormData({ 
+                        ...formData, 
+                        foodCategory: e.target.value as FoodAllergyCategory,
+                      })
+                    }
+                    required
+                  >
+                    <option value="">선택하세요</option>
+                    {Object.entries(foodCategoryLabels).map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {formData.allergyType === 'FOOD' ? '식품명' : '성분명'} *
                 </label>
                 <input
                   type="text"
@@ -139,7 +221,7 @@ export default function AllergiesPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   value={formData.ingredientName}
                   onChange={(e) => setFormData({ ...formData, ingredientName: e.target.value })}
-                  placeholder="예: 아세트아미노펜"
+                  placeholder={formData.allergyType === 'FOOD' ? '예: 땅콩, 우유, 계란' : '예: 아세트아미노펜'}
                 />
               </div>
               <div>
@@ -191,7 +273,7 @@ export default function AllergiesPage() {
                 <div key={allergy.id} className="p-6 hover:bg-gray-50">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
+                      <div className="flex items-center gap-3 mb-2 flex-wrap">
                         <h3 className="text-lg font-semibold text-gray-900">
                           {allergy.ingredientName}
                         </h3>
@@ -200,6 +282,16 @@ export default function AllergiesPage() {
                         >
                           {severityLabels[allergy.severity]}
                         </span>
+                        {allergy.allergyType && (
+                          <span className="px-2 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800">
+                            {allergyTypeLabels[allergy.allergyType]}
+                          </span>
+                        )}
+                        {allergy.allergyType === 'FOOD' && allergy.foodCategory && (
+                          <span className="px-2 py-1 text-xs font-medium rounded bg-purple-100 text-purple-800">
+                            {foodCategoryLabels[allergy.foodCategory]}
+                          </span>
+                        )}
                       </div>
                       {allergy.description && (
                         <p className="text-gray-600 mb-2">{allergy.description}</p>

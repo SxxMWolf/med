@@ -1,9 +1,8 @@
 package com.sxxm.med.ocr.service;
 
 import com.sxxm.med.auth.entity.User;
-import com.sxxm.med.auth.entity.UserAllergy;
-import com.sxxm.med.auth.repository.UserAllergyRepository;
 import com.sxxm.med.auth.repository.UserRepository;
+import com.sxxm.med.analysis.service.AllergyService;
 import com.sxxm.med.analysis.service.PythonApiService;
 import com.sxxm.med.ocr.dto.OcrAnalysisRequest;
 import com.sxxm.med.ocr.dto.OcrAnalysisResponse;
@@ -15,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 public class OcrAnalysisService {
     
     private final UserRepository userRepository;
-    private final UserAllergyRepository userAllergyRepository;
+    private final AllergyService allergyService;
     private final OcrIngredientRepository ocrIngredientRepository;
     private final VisionService visionService;
     private final PythonApiService pythonApiService;
@@ -43,13 +44,14 @@ public class OcrAnalysisService {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다: " + request.getUserId()));
         
-        // 사용자 알러지 정보 조회
-        List<UserAllergy> allergies = userAllergyRepository.findByUserId(request.getUserId());
-        List<String> allergyIngredients = allergies.stream()
-                .map(UserAllergy::getIngredientName)
-                .collect(Collectors.toList());
+        // 사용자 알러지 정보 조회 (약물 알러지와 식품 알러지 분리)
+        List<String> medicationAllergies = allergyService.getMedicationAllergies(request.getUserId());
+        List<String> foodAllergies = allergyService.getFoodAllergies(request.getUserId());
+        List<String> allAllergies = new ArrayList<>(medicationAllergies);
+        allAllergies.addAll(foodAllergies);
         
-        log.info("사용자 알러지 정보 조회 완료: 알러지 개수={}", allergyIngredients.size());
+        log.info("사용자 알러지 정보 조회 완료: 약물 알러지 개수={}, 식품 알러지 개수={}", 
+                medicationAllergies.size(), foodAllergies.size());
         
         // OCR 텍스트 추출
         log.info("OCR 텍스트 추출 시작");
@@ -80,11 +82,25 @@ public class OcrAnalysisService {
             throw new RuntimeException("OCR 텍스트 정규화 중 오류가 발생했습니다: " + e.getMessage(), e);
         }
         
+        // OCR 텍스트에서 식품 알러지 트리거 성분 검색
+        List<String> detectedFoodAllergenTriggers = detectFoodAllergenTriggers(ocrText, foodAllergies);
+        log.info("식품 알러지 트리거 성분 감지: {}", detectedFoodAllergenTriggers);
+        
         // Python 서비스를 통해 성분 분석
         log.info("Python 서비스 호출: 성분 분석");
         try {
-            Map<String, Object> analysisResult = pythonApiService.analyzeIngredients(extractedIngredients, allergyIngredients);
+            Map<String, Object> analysisResult = pythonApiService.analyzeIngredients(
+                    extractedIngredients, 
+                    allAllergies,
+                    medicationAllergies,
+                    foodAllergies
+            );
             log.info("성분 분석 완료");
+            
+            // 식품 알러지 트리거 성분 정보를 분석 결과에 추가
+            if (!detectedFoodAllergenTriggers.isEmpty()) {
+                analysisResult.put("detected_food_allergen_triggers", detectedFoodAllergenTriggers);
+            }
             
             // Python 서비스 응답을 OcrAnalysisResponse로 변환
             OcrAnalysisResponse response = convertToOcrAnalysisResponse(analysisResult, ocrText, cleanedText, extractedIngredients);
@@ -167,6 +183,32 @@ public class OcrAnalysisService {
             analysis.setRecommendations(recommendations);
         }
         
+        if (analysisResult.containsKey("food_allergy_risk")) {
+            analysis.setFoodAllergyRisk(analysisResult.get("food_allergy_risk").toString());
+        }
+        
+        if (analysisResult.containsKey("matched_food_allergens")) {
+            @SuppressWarnings("unchecked")
+            List<String> matchedAllergens = (List<String>) analysisResult.get("matched_food_allergens");
+            analysis.setMatchedFoodAllergens(matchedAllergens);
+        }
+        
+        if (analysisResult.containsKey("food_origin_excipients_detected")) {
+            @SuppressWarnings("unchecked")
+            List<String> excipients = (List<String>) analysisResult.get("food_origin_excipients_detected");
+            analysis.setFoodOriginExcipientsDetected(excipients);
+        }
+        
+        if (analysisResult.containsKey("detected_food_allergen_triggers")) {
+            @SuppressWarnings("unchecked")
+            List<String> triggers = (List<String>) analysisResult.get("detected_food_allergen_triggers");
+            // 트리거 정보를 matchedFoodAllergens에 추가
+            if (analysis.getMatchedFoodAllergens() == null) {
+                analysis.setMatchedFoodAllergens(new ArrayList<>());
+            }
+            analysis.getMatchedFoodAllergens().addAll(triggers);
+        }
+        
         response.setAnalysis(analysis);
         return response;
     }
@@ -196,6 +238,52 @@ public class OcrAnalysisService {
             risk.setReason(value != null ? value.toString() : null);
         }
         return risk;
+    }
+    
+    /**
+     * OCR 텍스트에서 식품 알러지 트리거 성분 검색
+     * 예: "젤라틴", "소젤라틴", "유당", "레시틴", "땅콩유", "전분", "콩유", "난백" 등
+     */
+    private List<String> detectFoodAllergenTriggers(String ocrText, List<String> foodAllergies) {
+        if (ocrText == null || ocrText.trim().isEmpty() || foodAllergies == null || foodAllergies.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        List<String> detectedTriggers = new ArrayList<>();
+        String lowerOcrText = ocrText.toLowerCase();
+        
+        // 식품 알러지별 트리거 성분 매핑
+        Map<String, List<String>> foodAllergenTriggers = Map.of(
+                "땅콩", Arrays.asList("땅콩", "땅콩유", "땅콩기름", "peanut", "peanut oil"),
+                "글루텐", Arrays.asList("글루텐", "밀전분", "밀단백질", "gluten", "wheat", "밀"),
+                "유당", Arrays.asList("유당", "락토스", "lactose", "lactose"),
+                "갑각류", Arrays.asList("새우", "게", "크랩", "shrimp", "crab", "crustacean"),
+                "계란", Arrays.asList("계란", "난백", "계란알부민", "egg", "albumin", "egg white"),
+                "대두", Arrays.asList("대두", "콩", "콩유", "대두유", "레시틴", "대두레시틴", "soy", "soybean", "lecithin"),
+                "우유", Arrays.asList("우유", "카제인", "우유단백질", "milk", "casein", "milk protein"),
+                "젤라틴", Arrays.asList("젤라틴", "소젤라틴", "돼지젤라틴", "gelatin", "bovine gelatin", "porcine gelatin")
+        );
+        
+        // 사용자의 식품 알러지에 대해 트리거 성분 검색
+        for (String foodAllergy : foodAllergies) {
+            String lowerFoodAllergy = foodAllergy.toLowerCase();
+            List<String> triggers = foodAllergenTriggers.getOrDefault(foodAllergy, 
+                    foodAllergenTriggers.getOrDefault(lowerFoodAllergy, new ArrayList<>()));
+            
+            // 트리거 성분이 OCR 텍스트에 포함되어 있는지 확인
+            for (String trigger : triggers) {
+                if (lowerOcrText.contains(trigger.toLowerCase())) {
+                    detectedTriggers.add(trigger);
+                }
+            }
+            
+            // 직접 매칭도 확인
+            if (lowerOcrText.contains(lowerFoodAllergy)) {
+                detectedTriggers.add(foodAllergy);
+            }
+        }
+        
+        return detectedTriggers.stream().distinct().collect(Collectors.toList());
     }
 }
 
