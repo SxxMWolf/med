@@ -7,14 +7,26 @@
 ### 데이터베이스 설정
 
 ```bash
+# ============================================
+# AWS RDS 설정 (주석 처리됨 - 복원 시 주석 해제)
+# ============================================
 # 데이터베이스 사용자명
-med_DB_USERNAME=sxxm
+# med_DB_USERNAME=sxxm
 
 # 데이터베이스 비밀번호
-med_DB_PASSWORD=your_secure_password_here
+# med_DB_PASSWORD=your_secure_password_here
 
 # 데이터베이스 URL (선택적, application.properties에 기본값 있음)
-DB_URL=jdbc:postgresql://med-db.ct8g22igmvtq.ap-northeast-2.rds.amazonaws.com:5432/postgres
+# DB_URL=jdbc:postgresql://med-db.ct8g22igmvtq.ap-northeast-2.rds.amazonaws.com:5432/postgres
+
+# ============================================
+# 로컬 PostgreSQL 설정 (활성화됨)
+# ============================================
+# 로컬 데이터베이스는 application.properties에서 직접 설정됨
+# DB 이름: localMED_DB
+# 사용자: sxxm
+# 비밀번호: sxxmpass
+# 연결 URL: jdbc:postgresql://localhost:5432/localMED_DB
 ```
 
 ### JWT 설정

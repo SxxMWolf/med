@@ -35,9 +35,11 @@ services:
       - "8080"
     environment:
       # 데이터베이스 설정
-      - med_DB_USERNAME=${med_DB_USERNAME}
-      - med_DB_PASSWORD=${med_DB_PASSWORD}
-      - DB_URL=${DB_URL}
+      # AWS RDS 설정 (주석 처리됨 - 복원 시 주석 해제)
+      # - med_DB_USERNAME=${med_DB_USERNAME}
+      # - med_DB_PASSWORD=${med_DB_PASSWORD}
+      # - DB_URL=${DB_URL}
+      # 로컬 PostgreSQL은 application.properties에서 직접 설정됨
       
       # JWT 설정
       - JWT_SECRET=${JWT_SECRET}
