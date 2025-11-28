@@ -96,14 +96,12 @@ export default function AllergiesPage() {
   };
 
   const foodCategoryLabels: Record<FoodAllergyCategory, string> = {
-    PEANUT: '땅콩',
-    GLUTEN: '글루텐',
-    LACTOSE: '유당',
-    SHELLFISH: '갑각류',
-    EGG: '계란',
-    SOY: '콩',
-    TREE_NUT: '견과류',
-    FISH: '생선',
+    NUTS: '견과류 (땅콩 등)',
+    DAIRY_EGG: '우유 · 계란',
+    SEAFOOD: '수산물',
+    GRAINS_GLUTEN: '곡류 · 글루텐',
+    SOY: '대두',
+    SEEDS: '씨앗류 (참깨 등)',
     OTHER: '기타',
   };
 

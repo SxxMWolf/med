@@ -35,15 +35,13 @@ export interface UserResponse {
 
 // 알러지 관련 타입
 export type AllergyType = 'MEDICATION' | 'FOOD';
-export type FoodAllergyCategory = 
-  | 'PEANUT' 
-  | 'GLUTEN' 
-  | 'LACTOSE' 
-  | 'SHELLFISH' 
-  | 'EGG' 
-  | 'SOY' 
-  | 'TREE_NUT' 
-  | 'FISH' 
+export type FoodAllergyCategory =
+  | 'NUTS'
+  | 'DAIRY_EGG'
+  | 'SEAFOOD'
+  | 'GRAINS_GLUTEN'
+  | 'SOY'
+  | 'SEEDS'
   | 'OTHER';
 
 export interface UserAllergy {

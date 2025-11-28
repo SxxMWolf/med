@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -252,34 +253,30 @@ public class OcrAnalysisService {
         List<String> detectedTriggers = new ArrayList<>();
         String lowerOcrText = ocrText.toLowerCase();
         
-        // 식품 알러지별 트리거 성분 매핑
-        Map<String, List<String>> foodAllergenTriggers = Map.of(
-                "땅콩", Arrays.asList("땅콩", "땅콩유", "땅콩기름", "peanut", "peanut oil"),
-                "글루텐", Arrays.asList("글루텐", "밀전분", "밀단백질", "gluten", "wheat", "밀"),
-                "유당", Arrays.asList("유당", "락토스", "lactose", "lactose"),
-                "갑각류", Arrays.asList("새우", "게", "크랩", "shrimp", "crab", "crustacean"),
-                "계란", Arrays.asList("계란", "난백", "계란알부민", "egg", "albumin", "egg white"),
-                "대두", Arrays.asList("대두", "콩", "콩유", "대두유", "레시틴", "대두레시틴", "soy", "soybean", "lecithin"),
-                "우유", Arrays.asList("우유", "카제인", "우유단백질", "milk", "casein", "milk protein"),
-                "젤라틴", Arrays.asList("젤라틴", "소젤라틴", "돼지젤라틴", "gelatin", "bovine gelatin", "porcine gelatin")
-        );
+        // 식품 알러지 그룹별 트리거 성분 매핑 (7개 그룹)
+        Map<String, List<String>> foodAllergenGroups = new HashMap<>();
+        foodAllergenGroups.put("NUTS", Arrays.asList("땅콩", "peanut", "아몬드", "almond", "호두", "walnut",
+                "피스타치오", "pistachio", "캐슈넛", "cashew", "헤이즐넛", "hazelnut", "macadamia", "브라질넛"));
+        foodAllergenGroups.put("DAIRY_EGG", Arrays.asList("우유", "milk", "유청", "whey", "카제인", "casein",
+                "계란", "egg", "난백", "albumin", "ovalbumin", "lysozyme"));
+        foodAllergenGroups.put("SEAFOOD", Arrays.asList("연어", "salmon", "참치", "tuna", "cod", "fish",
+                "새우", "shrimp", "게", "crab", "crustacean", "조개", "clam", "mussel", "oyster", "mollusc"));
+        foodAllergenGroups.put("GRAINS_GLUTEN", Arrays.asList("밀", "wheat", "글루텐", "gluten", "보리", "barley", "호밀", "rye"));
+        foodAllergenGroups.put("SOY", Arrays.asList("대두", "soy", "soybean", "레시틴", "lecithin"));
+        foodAllergenGroups.put("SEEDS", Arrays.asList("참깨", "sesame", "해바라기씨", "sunflower seed"));
+        foodAllergenGroups.put("OTHER", Arrays.asList("젤라틴", "gelatin", "아황산", "sulfite", "sulphite",
+                "셀러리", "celery", "겨자", "mustard", "루핀", "lupin"));
         
-        // 사용자의 식품 알러지에 대해 트리거 성분 검색
+        // 사용자의 식품 알러지 그룹에 대해 트리거 성분 검색
         for (String foodAllergy : foodAllergies) {
-            String lowerFoodAllergy = foodAllergy.toLowerCase();
-            List<String> triggers = foodAllergenTriggers.getOrDefault(foodAllergy, 
-                    foodAllergenTriggers.getOrDefault(lowerFoodAllergy, new ArrayList<>()));
+            String upperFoodAllergy = foodAllergy.toUpperCase();
+            List<String> triggers = foodAllergenGroups.getOrDefault(upperFoodAllergy, new ArrayList<>());
             
             // 트리거 성분이 OCR 텍스트에 포함되어 있는지 확인
             for (String trigger : triggers) {
                 if (lowerOcrText.contains(trigger.toLowerCase())) {
                     detectedTriggers.add(trigger);
                 }
-            }
-            
-            // 직접 매칭도 확인
-            if (lowerOcrText.contains(lowerFoodAllergy)) {
-                detectedTriggers.add(foodAllergy);
             }
         }
         

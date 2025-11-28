@@ -288,7 +288,7 @@ export default function MyPage() {
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">기본 정보</h2>
               <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">사용자명</dt>
+                  <dt className="text-sm font-medium text-gray-500">아이디</dt>
                   <dd className="mt-1 text-sm text-gray-900">{userInfo.username}</dd>
                 </div>
                 <div>

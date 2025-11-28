@@ -22,6 +22,7 @@ public class UserAllergyResponse {
     private String description;
     private UserAllergy.AllergySeverity severity;
     private UserAllergy.AllergyType allergyType;
+    private UserAllergy.FoodAllergyCategory foodCategory;
     
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime createdAt;
@@ -39,6 +40,7 @@ public class UserAllergyResponse {
                 .description(allergy.getDescription())
                 .severity(allergy.getSeverity())
                 .allergyType(allergy.getAllergyType())
+                .foodCategory(allergy.getFoodCategory())
                 .createdAt(allergy.getCreatedAt())
                 .updatedAt(allergy.getUpdatedAt())
                 .build();

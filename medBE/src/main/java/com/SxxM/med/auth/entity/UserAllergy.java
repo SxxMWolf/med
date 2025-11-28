@@ -40,6 +40,10 @@ public class UserAllergy {
     @Enumerated(EnumType.STRING)
     private AllergyType allergyType;
     
+    @Column(name = "food_category")
+    @Enumerated(EnumType.STRING)
+    private FoodAllergyCategory foodCategory;
+    
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
@@ -64,6 +68,16 @@ public class UserAllergy {
     public enum AllergyType {
         MEDICATION,  // 약물 알러지
         FOOD         // 식품 알러지
+    }
+    
+    public enum FoodAllergyCategory {
+        NUTS,
+        DAIRY_EGG,
+        SEAFOOD,
+        GRAINS_GLUTEN,
+        SOY,
+        SEEDS,
+        OTHER
     }
 }
 

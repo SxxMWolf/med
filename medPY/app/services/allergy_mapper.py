@@ -12,43 +12,72 @@ class FoodAllergenMapper:
     예: 땅콩 알러지 → 땅콩유, 땅콩기름 체크
     """
     
-    # 식품 알러지별 트리거 성분 매핑
-    # Java 백엔드의 OcrAnalysisService와 일관성 유지
-    FOOD_ALLERGEN_TRIGGERS: Dict[str, List[str]] = {
-        "땅콩": ["땅콩", "땅콩유", "땅콩기름", "peanut", "peanut oil", "arachis oil"],
-        "글루텐": ["글루텐", "밀전분", "밀단백질", "gluten", "wheat", "밀", "wheat starch", "wheat protein"],
-        "유당": ["유당", "락토스", "lactose", "lactose monohydrate"],
-        "갑각류": ["새우", "게", "크랩", "shrimp", "crab", "crustacean", "갑각류"],
-        "계란": ["계란", "난백", "계란알부민", "egg", "albumin", "egg white", "ovalbumin", "lysozyme"],
-        "대두": ["대두", "콩", "콩유", "대두유", "레시틴", "대두레시틴", "soy", "soybean", "lecithin", "soy lecithin"],
-        "우유": ["우유", "카제인", "우유단백질", "milk", "casein", "milk protein", "whey", "유청"],
-        "젤라틴": ["젤라틴", "소젤라틴", "돼지젤라틴", "gelatin", "bovine gelatin", "porcine gelatin", "gelatin capsule"],
-        "견과류": ["호두", "아몬드", "헤이즐넛", "walnut", "almond", "hazelnut", "nuts"],
-        "참깨": ["참깨", "sesame", "sesame oil", "sesame seed"]
+    # 식품 알러지 그룹별 트리거 성분 매핑 (7개 그룹)
+    FOOD_ALLERGEN_GROUPS: Dict[str, List[str]] = {
+        "NUTS": [
+            "땅콩", "peanut",
+            "아몬드", "almond",
+            "호두", "walnut",
+            "피스타치오", "pistachio",
+            "캐슈넛", "cashew",
+            "헤이즐넛", "hazelnut",
+            "macadamia", "브라질넛"
+        ],
+        "DAIRY_EGG": [
+            "우유", "milk", "유청", "whey", "카제인", "casein",
+            "계란", "egg", "난백", "albumin", "ovalbumin", "lysozyme"
+        ],
+        "SEAFOOD": [
+            "연어", "salmon",
+            "참치", "tuna",
+            "cod", "fish",
+            "새우", "shrimp",
+            "게", "crab",
+            "crustacean",
+            "조개", "clam",
+            "mussel", "oyster",
+            "mollusc"
+        ],
+        "GRAINS_GLUTEN": [
+            "밀", "wheat",
+            "글루텐", "gluten",
+            "보리", "barley",
+            "호밀", "rye"
+        ],
+        "SOY": [
+            "대두", "soy", "soybean",
+            "레시틴", "lecithin"
+        ],
+        "SEEDS": [
+            "참깨", "sesame",
+            "해바라기씨", "sunflower seed"
+        ],
+        "OTHER": [
+            "젤라틴", "gelatin",
+            "아황산", "sulfite", "sulphite",
+            "셀러리", "celery",
+            "겨자", "mustard",
+            "루핀", "lupin"
+        ]
     }
     
     @classmethod
     def get_triggers_for_allergy(cls, food_allergy: str) -> List[str]:
         """
-        특정 식품 알러지에 대한 트리거 성분 목록을 반환합니다.
+        특정 식품 알러지 그룹에 대한 트리거 성분 목록을 반환합니다.
         
         Args:
-            food_allergy: 식품 알러지 이름 (예: "땅콩", "계란")
+            food_allergy: 식품 알러지 그룹 이름 (예: "NUTS", "DAIRY_EGG")
             
         Returns:
-            해당 알러지와 관련된 부형제 성분 목록
+            해당 알러지 그룹과 관련된 부형제 성분 목록
         """
         # 대소문자 구분 없이 검색
-        normalized_allergy = food_allergy.strip()
+        normalized_allergy = food_allergy.strip().upper()
         
         # 직접 매칭 시도
-        if normalized_allergy in cls.FOOD_ALLERGEN_TRIGGERS:
-            return cls.FOOD_ALLERGEN_TRIGGERS[normalized_allergy]
-        
-        # 소문자로 매칭 시도
-        for key, triggers in cls.FOOD_ALLERGEN_TRIGGERS.items():
-            if key.lower() == normalized_allergy.lower():
-                return triggers
+        if normalized_allergy in cls.FOOD_ALLERGEN_GROUPS:
+            return cls.FOOD_ALLERGEN_GROUPS[normalized_allergy]
         
         # 기본값: 알러지 이름 자체를 포함
         return [normalized_allergy]

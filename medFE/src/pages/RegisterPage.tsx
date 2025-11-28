@@ -51,7 +51,7 @@ export default function RegisterPage() {
           <div className="space-y-4">
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                사용자명 (3-20자)
+                아이디 (3-20자)
               </label>
               <input
                 id="username"

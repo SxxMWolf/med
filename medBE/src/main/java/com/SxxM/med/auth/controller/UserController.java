@@ -72,15 +72,22 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         
-        UserAllergy allergy = UserAllergy.builder()
+        UserAllergy.UserAllergyBuilder builder = UserAllergy.builder()
                 .user(user)
                 .ingredientName(request.get("ingredientName"))
                 .description(request.get("description"))
                 .severity(UserAllergy.AllergySeverity.valueOf(
                         request.getOrDefault("severity", "MODERATE")))
                 .allergyType(UserAllergy.AllergyType.valueOf(
-                        request.getOrDefault("allergyType", "MEDICATION")))
-                .build();
+                        request.getOrDefault("allergyType", "MEDICATION")));
+        
+        // foodCategory가 제공된 경우에만 설정
+        String foodCategoryStr = request.get("foodCategory");
+        if (foodCategoryStr != null && !foodCategoryStr.isEmpty()) {
+            builder.foodCategory(UserAllergy.FoodAllergyCategory.valueOf(foodCategoryStr));
+        }
+        
+        UserAllergy allergy = builder.build();
         
         UserAllergy saved = userAllergyRepository.save(allergy);
         UserAllergyResponse response = UserAllergyResponse.from(saved);
