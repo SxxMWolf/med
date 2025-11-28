@@ -12,11 +12,11 @@ export default function Layout() {
   };
 
   const navItems = [
-    { path: '/posts', label: '커뮤니티' },
     { path: '/allergies', label: '알러지 관리' },
     { path: '/symptom', label: '증상 분석' },
     { path: '/side-effect', label: '부작용 분석' },
     { path: '/ocr', label: '성분표 분석' },
+    { path: '/posts', label: '커뮤니티' },
   ];
 
   return (
